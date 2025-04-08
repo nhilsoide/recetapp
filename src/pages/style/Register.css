@@ -80,7 +80,7 @@ main {
     padding: 40px 0;
 }
 
-.login-section {
+.register-section {
     background-color: #fff;
     padding: 30px;
     border-radius: 10px;
@@ -89,14 +89,14 @@ main {
     margin: 0 auto;
 }
 
-.login-section h2 {
+.register-section h2 {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
     margin-bottom: 20px;
     text-align: center;
 }
 
-.login-section input {
+.register-section input {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
@@ -105,12 +105,12 @@ main {
     font-size: 16px;
 }
 
-.login-section button {
+.register-section button {
     width: 100%;
     margin-top: 10px;
 }
 
-.login-section a {
+.register-section a {
     display: block;
     text-align: center;
     margin-top: 10px;
@@ -118,7 +118,7 @@ main {
     text-decoration: none;
 }
 
-.login-section a:hover {
+.register-section a:hover {
     text-decoration: underline;
 }
 

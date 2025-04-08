@@ -1,14 +1,16 @@
-// client/src/pages/Login.jsx
+// client/src/pages/Registro.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './style/Login.css';
+import './style/Register.css';
 
-const Login = () => {
+const Registro = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    nombre: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
 
@@ -25,29 +27,33 @@ const Login = () => {
     setError('');
     
     // Validación básica
-    if (!formData.email || !formData.password) {
+    if (!formData.nombre || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Por favor, completa todos los campos.');
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
     try {
-      // Aquí iría la llamada a tu API de autenticación
-      // const response = await axios.post('/api/auth/login', formData);
-      console.log('Datos de login:', formData);
+      // Aquí iría la llamada a tu API de registro
+      // const response = await axios.post('/api/auth/register', formData);
+      console.log('Datos de registro:', {
+        nombre: formData.nombre,
+        email: formData.email,
+        password: formData.password
+      });
       
-      // Simulamos un login exitoso
-      alert('Inicio de sesión exitoso!');
-      navigate('/'); // Redirige al home después del login
+      // Simulamos un registro exitoso
+      alert('Registro exitoso! Por favor inicia sesión.');
+      navigate('/login'); // Redirige al login después del registro
       
     } catch (err) {
-      setError('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
-      console.error('Error al iniciar sesión:', err);
+      setError(err.response?.data?.message || 'Error al registrar el usuario.');
+      console.error('Error al registrar:', err);
     }
-  };
-
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    alert('Tu cuenta será eliminada :p');
   };
 
   // Efecto para el botón de scroll
@@ -90,10 +96,18 @@ const Login = () => {
       </header>
 
       <main className="container mt-5">
-        <section className="login-section">
-          <h2>Iniciar Sesión</h2>
+        <section className="register-section">
+          <h2>Registro</h2>
           {error && <div className="alert alert-danger">{error}</div>}
           <form onSubmit={handleSubmit}>
+            <input 
+              type="text" 
+              name="nombre"
+              placeholder="Nombre completo" 
+              value={formData.nombre}
+              onChange={handleChange}
+              required 
+            />
             <input 
               type="email" 
               name="email"
@@ -110,12 +124,17 @@ const Login = () => {
               onChange={handleChange}
               required 
             />
-            <button type="submit" className="btn btn-custom">Ingresar</button>
-            <a href="#" onClick={handleForgotPassword} className="d-block text-center mt-3">
-              ¿Olvidaste tu contraseña?
-            </a>
-            <Link to="/registro" className="d-block text-center mt-2">
-              ¿No tienes una cuenta? Regístrate
+            <input 
+              type="password" 
+              name="confirmPassword"
+              placeholder="Confirmar contraseña" 
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required 
+            />
+            <button type="submit" className="btn btn-custom">Registrarse</button>
+            <Link to="/login" className="d-block text-center mt-3">
+              ¿Ya tienes una cuenta? Inicia Sesión
             </Link>
           </form>
         </section>
@@ -130,4 +149,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Registro;
