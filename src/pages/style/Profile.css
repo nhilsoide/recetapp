@@ -1,0 +1,181 @@
+.logo-container {
+    text-align: left;
+    padding: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    max-width: 300px;
+    height: auto;
+}
+
+.navbar-nav {
+    margin-left: auto;
+}
+
+.btn-custom.position-absolute {
+    background-color: #555;
+    font-size: 16px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-custom.position-absolute:hover {
+    background-color: #444;
+}
+/* Estilos existentes */
+body {
+    background-color: #f8f2e7;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 100px;
+}
+
+header {
+    background-color: #000;
+    color: #f8f2e7;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.btn-custom {
+    background-color: #000;
+    color: #f8f2e7;
+    padding: 12px 25px;
+    border: none;
+    font-size: 20px;
+    font-family: 'Playfair Display', serif;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-custom:hover {
+    background-color: #444;
+    transform: scale(1.05);
+}
+
+footer {
+    background-color: #000;
+    color: #f8f2e7;
+    padding: 15px;
+    font-size: 16px;
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+}
+
+main {
+    padding: 40px 0;
+}
+
+.profile-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.profile-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.profile-section p {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.profile-section .btn-custom {
+    margin-top: 20px;
+}
+
+.favorite-recipes, .recent-activity, .nueva-receta-section {
+    margin-top: 30px;
+}
+
+.favorite-recipes h3, .recent-activity h3, .nueva-receta-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.recipe-card {
+    background-color: #f8f2e7;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+.recipe-card img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+.recipe-card h4 {
+    font-family: 'Playfair Display', serif;
+    margin-top: 10px;
+}
+
+.testimonial-form {
+    margin-top: 30px;
+}
+
+.testimonial-form h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.testimonial-form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #000;
+    margin-bottom: 15px;
+}
+
+#btn-scroll-top {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: #000;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    z-index: 1000;
+}
+
+/* Estilos para el formulario de nueva receta */
+.nueva-receta-section input,
+.nueva-receta-section textarea,
+.nueva-receta-section select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 2px solid #000;
+    border-radius: 30px;
+    font-size: 16px;
+}
+
+.nueva-receta-section button {
+    width: 100%;
+    margin-top: 10px;
+}
