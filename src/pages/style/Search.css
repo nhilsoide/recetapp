@@ -1,0 +1,157 @@
+
+        /* Estilos existentes */
+        .logo-container {
+          text-align: left;
+          padding: 10px 0;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .logo {
+          max-width: 300px;
+          height: auto;
+      }
+
+      .navbar-nav {
+          margin-left: auto;
+      }
+
+      .btn-custom.position-absolute {
+          background-color: #555;
+          font-size: 16px;
+          padding: 8px 15px;
+          border-radius: 20px;
+          transition: all 0.3s ease;
+      }
+
+      .btn-custom.position-absolute:hover {
+          background-color: #444;
+      }
+      body {
+          background-color: #f8f2e7;
+          color: #333;
+          font-family: 'Poppins', sans-serif;
+          margin: 0;
+          padding: 0;
+          padding-bottom: 100px;
+      }
+
+      header {
+          background-color: #000;
+          color: #f8f2e7;
+          padding: 20px;
+          font-size: 28px;
+          font-weight: bold;
+          font-family: 'Playfair Display', serif;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          text-align: center;
+      }
+
+      .btn-custom {
+          background-color: #000;
+          color: #f8f2e7;
+          padding: 12px 25px;
+          border: none;
+          font-size: 20px;
+          font-family: 'Playfair Display', serif;
+          cursor: pointer;
+          border-radius: 30px;
+          transition: all 0.3s ease-in-out;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-custom:hover {
+          background-color: #444;
+          transform: scale(1.05);
+      }
+
+      footer {
+          background-color: #000;
+          color: #f8f2e7;
+          padding: 15px;
+          font-size: 16px;
+          font-family: 'Playfair Display', serif;
+          text-align: center;
+          position: fixed;
+          width: 100%;
+          bottom: 0;
+          box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      main {
+          padding: 40px 0;
+      }
+
+      .search-form {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .search-form input {
+          border: 2px solid #000;
+          border-radius: 30px;
+          padding: 10px 20px;
+      }
+
+      .search-form button {
+          border-radius: 30px;
+      }
+
+      .ingredientes-sugeridos {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 20px;
+      }
+
+      .ingredientes-sugeridos .badge {
+          background-color: #000;
+          color: #f8f2e7;
+          padding: 10px 15px;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+      }
+
+      .ingredientes-sugeridos .badge:hover {
+          background-color: #444;
+      }
+
+      .receta-encontrada {
+          background-color: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          margin-top: 20px;
+      }
+
+      .receta-encontrada img {
+          max-width: 100%;
+          border-radius: 10px;
+          margin-bottom: 20px;
+      }
+
+      .receta-encontrada h3 {
+          font-family: 'Playfair Display', serif;
+          font-weight: 700;
+          margin-bottom: 15px;
+      }
+
+      .receta-encontrada p {
+          font-size: 18px;
+          margin-bottom: 15px;
+      }
+
+      .receta-encontrada ul {
+          list-style-type: none;
+          padding: 0;
+      }
+
+      .receta-encontrada ul li {
+          margin-bottom: 10px;
+      }
+
+      .receta-encontrada button {
+          margin-top: 20px;
+      }

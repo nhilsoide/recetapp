@@ -1,7 +1,7 @@
 // client/src/pages/Home.js
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Home.css'; // Crearemos este archivo para los estilos
+import './style/Home.css'; // Crearemos este archivo para los estilos
 import { useEffect } from 'react';
 
 function Home() {
@@ -23,7 +23,7 @@ function Home() {
     <>
       <header>
         <div className="logo-container d-flex justify-content-start align-items-center py-3">
-          <img src="/logo_invertido.png" alt="RecetApp Logo" className="logo" />
+          <img src="/img/logo_invertido.png" alt="RecetApp Logo" className="logo" />
         </div>
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
           <div className="container">

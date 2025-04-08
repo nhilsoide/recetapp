@@ -1,31 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-
+import Search from './pages/Search';
 
 function App() {
-  const [mensaje, setMensaje] = useState('');
-
+  
   useEffect(() => {
     axios.get('http://localhost:5000/api/mensaje')
-      .then((res) => {
-        setMensaje(res.data.mensaje);
+      .then((res) => {        
       })
       .catch((err) => console.log(err));
   }, []);
 
   return (
     <div>
-      <h1>Mi Aplicación React + Node.js</h1>
-      <p>Mensaje del backend: {mensaje}</p>
       <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-      </Routes>
-    </Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/buscar" element={<Search />} />
+        </Routes>
+      </Router>
     </div>
-    
+
   );
 }
 
