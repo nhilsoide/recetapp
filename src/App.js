@@ -6,6 +6,7 @@ import Search from './pages/Search';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Admin from './pages/Admin';
 
 function App() {
   
@@ -25,6 +26,7 @@ function App() {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </Router>
     </div>

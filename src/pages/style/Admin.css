@@ -1,0 +1,169 @@
+/* client/src/pages/Admin.css */
+body {
+    background-color: #f8f2e7;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 100px;
+  }
+  
+  header {
+    background-color: #000;
+    color: #f8f2e7;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+  
+  .logo-container {
+    text-align: left;
+    padding: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .logo {
+    max-width: 300px;
+    height: auto;
+  }
+  
+  .btn-custom {
+    background-color: #000;
+    color: #f8f2e7;
+    padding: 12px 25px;
+    border: none;
+    font-size: 20px;
+    font-family: 'Playfair Display', serif;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  .btn-custom:hover {
+    background-color: #444;
+    transform: scale(1.05);
+  }
+  
+  footer {
+    background-color: #000;
+    color: #f8f2e7;
+    padding: 15px;
+    font-size: 16px;
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  .admin-section {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .admin-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #000;
+  }
+  
+  .admin-section h3, .admin-section h4 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #000;
+  }
+  
+  .table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .table th {
+    background-color: #000;
+    color: #f8f2e7;
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .btn-action {
+    margin: 0 5px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-action.edit {
+    background-color: #28a745;
+    color: #fff;
+  }
+  
+  .btn-action.delete {
+    background-color: #dc3545;
+    color: #fff;
+  }
+  
+  .btn-action:hover {
+    opacity: 0.8;
+  }
+  
+  #btn-scroll-top {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background-color: #000;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    z-index: 1000;
+  }
+  
+  .search-bar {
+    margin-bottom: 20px;
+  }
+  
+  .search-bar input {
+    border: 2px solid #000;
+    border-radius: 30px;
+    padding: 10px 20px;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .search-bar button {
+    border-radius: 30px;
+    margin-left: 10px;
+  }
+  
+  .nav-tabs .nav-link {
+    color: #000;
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .nav-tabs .nav-link.active {
+    font-weight: bold;
+    border-bottom: 3px solid #000;
+  }
