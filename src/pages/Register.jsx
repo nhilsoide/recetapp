@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Register.css';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Registro = () => {
   const navigate = useNavigate();
@@ -26,35 +29,46 @@ const Registro = () => {
     e.preventDefault();
     setError('');
     
-    // Validación básica
     if (!formData.nombre || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Por favor, completa todos los campos.');
+      toast.error('Por favor, completa todos los campos.', {
+        position: "top-center",
+        autoClose: 5000,
+      });
       return;
     }
-
+  
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden.');
+      toast.error('Las contraseñas no coinciden.', {
+        position: "top-center",
+        autoClose: 5000,
+      });
       return;
     }
-
+  
     try {
-      // Aquí iría la llamada a tu API de registro
-      // const response = await axios.post('/api/auth/register', formData);
-      console.log('Datos de registro:', {
+      const { data } = await axios.post(' http://localhost:5000/api/auth/register', {
         nombre: formData.nombre,
         email: formData.email,
         password: formData.password
       });
+  
+      localStorage.setItem('token', data.token);
       
-      // Simulamos un registro exitoso
-      alert('Registro exitoso! Por favor inicia sesión.');
-      navigate('/login'); // Redirige al login después del registro
+      toast.success('¡Registro exitoso! Redirigiendo...', {
+        position: "top-center",
+        autoClose: 2000,
+        onClose: () => navigate('/login')
+      });
       
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al registrar el usuario.');
-      console.error('Error al registrar:', err);
+      toast.error(err.response?.data?.msg || 'Error al registrar el usuario', {
+        position: "top-center",
+        autoClose: 5000,
+      });
     }
   };
+
+ 
 
   // Efecto para el botón de scroll
   useEffect(() => {
@@ -145,6 +159,7 @@ const Registro = () => {
       <footer>
         <p>&copy; 2025 RecetApp - Todos los derechos reservados</p>
       </footer>
+      <ToastContainer />
     </>
   );
 };
