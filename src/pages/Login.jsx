@@ -49,6 +49,8 @@ const Login = () => {
       );
 
       if (data.isAdmin) {
+        localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
         toast.success('¡Bienvenido Administrador!', {
           position: "top-center",
           autoClose: 2000,
@@ -162,7 +164,7 @@ const Login = () => {
     <>
       <header>
         <div className="logo-container d-flex justify-content-start align-items-center py-3">
-          <img src="/logo_invertido.png" alt="RecetApp Logo" className="logo" />
+          <img src="img/logo_invertido.png" alt="RecetApp Logo" className="logo" />
         </div>
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
           <div className="container">
@@ -204,7 +206,7 @@ const Login = () => {
             />
             <button type="submit" className="btn btn-custom">Ingresar</button>
             <a href="#" onClick={handleForgotPassword} className="d-block text-center mt-3">
-              ¿Olvidaste tu contraseña?
+              ¿Olvidaste tu contraseña?//en proceso
             </a>
             <Link to="/registro" className="d-block text-center mt-2">
               ¿No tienes una cuenta? Regístrate

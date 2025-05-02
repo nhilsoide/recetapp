@@ -2,11 +2,17 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Home.css'; // Crearemos este archivo para los estilos
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 function Home() {
- 
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
+
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token); // Si hay token, es true; si no, false
+
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");
       btn.style.display = (document.documentElement.scrollTop > 100) ? "block" : "none";
@@ -18,7 +24,7 @@ function Home() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
- 
+
   return (
     <>
       <header>
@@ -33,16 +39,36 @@ function Home() {
             <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav mx-auto">
                 <li className="nav-item"><a className="nav-link" href="/">Inicio</a></li>
-                <li className="nav-item"><a className="nav-link" href="/buscar">Buscar Recetas</a></li>
+                <li className="nav-item"><a className="nav-link" href="/buscar">Recetas</a></li>
                 <li className="nav-item"><a className="nav-link" href="/perfil">Perfil</a></li>
               </ul>
             </div>
-            <a href="/login" className="btn btn-custom">Iniciar Sesión</a>
+            {isAuthenticated ? (
+              <>
+                <a href="/perfil" className="btn btn-success mx-2">Perfil</a>
+                <button onClick={() => {
+                  localStorage.removeItem('token');
+                  window.location.reload(); // Recarga la página para actualizar el estado
+                }} className="btn btn-danger mx-2">Cerrar Sesión</button>
+              </>
+            ) : (
+              <a href="/login" className="btn btn-custom">Iniciar Sesión</a>
+            )}
+
+
           </div>
         </nav>
       </header>
 
       <main className="container mt-5">
+
+      {!isAuthenticated && (
+  <div className="alert-login">
+    ⚠️ Para disfrutar de todas las funcionalidades, por favor <a href="/login" style={{ color: 'blue', textDecoration: 'underline' }}>inicia sesión</a>.
+  </div>
+)}
+
+
         {/* Carrusel de recetas Populares */}
         <section>
           <h2>Populares</h2>
@@ -72,66 +98,71 @@ function Home() {
 
         {/* Sección de recetas recientes */}
         <section class="mt-5">
-            <h2>Recién cocinadas</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="post">
-                        <img src="img/tarta-de-manzana.jpg" alt="Tarta de manzana"/>
-                        <h3>Tarta de Manzana</h3>
-                        <p>Una deliciosa tarta de manzana con un toque de canela y una base crujiente.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="post">
-                        <img src="img/pasta.jpg" alt="Pasta al pesto"/>
-                        <h3>Pasta al Pesto</h3>
-                        <p>Receta tradicional italiana con albahaca fresca, piñones y queso parmesano.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="post">
-                        <img src="img/pan.jpg" alt="Pan casero"/>
-                        <h3>Pan Casero</h3>
-                        <p>Aprende a hacer pan casero con pocos ingredientes y sin necesidad de amasadora.</p>
-                    </div>
-                </div>
+          <h2>Recién cocinadas</h2>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="post">
+                <img src="img/tarta-de-manzana.jpg" alt="Tarta de manzana" />
+                <h3>Tarta de Manzana</h3>
+                <p>Una deliciosa tarta de manzana con un toque de canela y una base crujiente.</p>
+              </div>
             </div>
+            <div class="col-md-4">
+              <div class="post">
+                <img src="img/pasta.jpg" alt="Pasta al pesto" />
+                <h3>Pasta al Pesto</h3>
+                <p>Receta tradicional italiana con albahaca fresca, piñones y queso parmesano.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="post">
+                <img src="img/pan.jpg" alt="Pan casero" />
+                <h3>Pan Casero</h3>
+                <p>Aprende a hacer pan casero con pocos ingredientes y sin necesidad de amasadora.</p>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Sección de categorías de recetas */}
         <section class="mt-5">
-            <h2>Categorías de Recetas</h2>
-            <div class="categorias">
-                <div class="categoria">
-                    <img src="img/postre.jpg" alt="Postres"/>
-                    <h3>Postres</h3>
-                </div>
-                <div class="categoria">
-                    <img src="img/principales.jpg" alt="Platos Principales"/>
-                    <h3>Platos Principales</h3>
-                </div>
-                <div class="categoria">
-                    <img src="img/ensaladas.jpg" alt="Ensaladas"/>
-                    <h3>Ensaladas</h3>
-                </div>
-                <div class="categoria">
-                    <img src="img/bebidas.jpg" alt="Bebidas"/>
-                    <h3>Bebidas</h3>
-                </div>
+          <h2>Categorías de Recetas</h2>
+          <div class="categorias">
+
+            <div class="categoria">
+              <img src="img/postre.jpg" alt="Postres" />
+              <h3>Postres</h3>
             </div>
+
+            <div class="categoria">
+              <img src="img/principales.jpg" alt="Platos Principales" />
+              <h3>Platos Principales</h3>
+            </div>
+
+            <div class="categoria">
+              <img src="img/ensaladas.jpg" alt="Ensaladas" />
+              <h3>Ensaladas</h3>
+            </div>
+
+            <div class="categoria">
+              <img src="img/bebidas.jpg" alt="Bebidas" />
+              <h3>Bebidas</h3>
+            </div>
+            
+          </div>
         </section>
 
         {/* Formulario de suscripción */}
-        <section class="mt-5">
-            <div class="subscription-form">
-                <h2>Suscríbete para recibir recetas</h2>
-                <form>
-                    <input type="email" class="form-control" placeholder="Ingresa tu correo"/>
-                    <button type="submit" class="btn btn-custom">Suscribirme</button>
-                </form>
-            </div>
-        </section>
-        
+        {/* <section class="mt-5">
+          <div class="subscription-form">
+            <h2>Suscríbete para recibir recetas</h2>
+            <form>
+              <input type="email" class="form-control" placeholder="Ingresa tu correo" />
+              <button type="submit" class="btn btn-custom">Suscribirme</button>
+            </form>
+          </div>
+        </section> */}
+
       </main>
 
       <button id="btn-scroll-top" onClick={scrollToTop}>&#8679;</button>
@@ -141,7 +172,7 @@ function Home() {
       </footer>
     </>
 
-    
+
   );
 }
 

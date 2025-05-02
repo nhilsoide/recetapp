@@ -233,3 +233,29 @@ main {
     width: 100%;
     max-width: 400px;
 }
+
+/* Botón de Bienvenido */
+.btn-success {
+    background-color: #abad8e;
+    border-color: #abad8e;
+    font-weight: bold;
+  }
+  
+  /* Botón de Cerrar Sesión */
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    font-weight: bold;
+  }
+  
+  /* Estilos para el anuncio de inicio de sesión */
+  .alert-login {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
