@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Login.css';
-
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -23,31 +25,123 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Validación básica
+
     if (!formData.email || !formData.password) {
-      setError('Por favor, completa todos los campos.');
+      toast.error('Por favor, completa todos los campos.', {
+        position: "top-center",
+        autoClose: 5000,
+      });
       return;
     }
 
     try {
-      // Aquí iría la llamada a tu API de autenticación
-      // const response = await axios.post('/api/auth/login', formData);
-      console.log('Datos de login:', formData);
-      
-      // Simulamos un login exitoso
-      alert('Inicio de sesión exitoso!');
-      navigate('/'); // Redirige al home después del login
-      
+      const { data } = await axios.post(
+        'http://localhost:5000/api/auth/login',
+        {
+          email: formData.email,
+          password: formData.password
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (data.isAdmin) {
+        localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        toast.success('¡Bienvenido Administrador!', {
+          position: "top-center",
+          autoClose: 2000,
+          onClose: () => navigate('/admin') // Redirige al panel de admin
+        });
+      }else{
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+  
+          toast.success('¡Inicio de sesión exitoso!', {
+            position: "top-center",
+            autoClose: 2000,
+            onClose: () => navigate('/')
+          });
+        } else {
+          toast.error(data.message, {
+            position: "top-center",
+            autoClose: 4000
+          });
+        }
+      }      
+
     } catch (err) {
-      setError('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
-      console.error('Error al iniciar sesión:', err);
+      const errorMsg = err.response?.data?.message ||
+        err.response?.data?.error ||
+        'Error al conectar con el servidor';
+
+      console.error('Error completo:', err.response?.data || err);
+
+      toast.error(errorMsg, {
+        position: "top-center",
+        autoClose: 5000
+      });
     }
   };
 
-  const handleForgotPassword = (e) => {
+
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
-    alert('Tu cuenta será eliminada :p');
+
+    if (!formData.email) {
+      toast.error('Por favor ingresa tu email', {
+        position: "top-center",
+        autoClose: 3000
+      });
+      return;
+    }
+
+    try {
+      const { data } = await axios.post(
+        '/api/auth/forgot-password', // URL completa
+        { email: formData.email },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // Mostrar mensaje según el entorno
+      if (process.env.NODE_ENV === 'development' && data.password) {
+        toast.info(
+          <div>
+            <p>Para desarrollo: Tu contraseña es</p>
+            <p><strong>{data.password}</strong></p>
+            <p><small>En producción esto no sería visible</small></p>
+          </div>,
+          {
+            position: "top-center",
+            autoClose: 10000,
+            closeButton: true
+          }
+        );
+      } else {
+        toast.success(
+          'Si el email existe, se enviaron instrucciones a tu correo',
+          {
+            position: "top-center",
+            autoClose: 5000
+          }
+        );
+      }
+
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || 'Error al procesar la solicitud';
+      toast.error(errorMsg, {
+        position: "top-center",
+        autoClose: 5000
+      });
+    }
   };
 
   // Efecto para el botón de scroll
@@ -70,7 +164,7 @@ const Login = () => {
     <>
       <header>
         <div className="logo-container d-flex justify-content-start align-items-center py-3">
-          <img src="/logo_invertido.png" alt="RecetApp Logo" className="logo" />
+          <img src="img/logo_invertido.png" alt="RecetApp Logo" className="logo" />
         </div>
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
           <div className="container">
@@ -94,25 +188,25 @@ const Login = () => {
           <h2>Iniciar Sesión</h2>
           {error && <div className="alert alert-danger">{error}</div>}
           <form onSubmit={handleSubmit}>
-            <input 
-              type="email" 
+            <input
+              type="email"
               name="email"
-              placeholder="Correo electrónico" 
+              placeholder="Correo electrónico"
               value={formData.email}
               onChange={handleChange}
-              required 
+              required
             />
-            <input 
-              type="password" 
+            <input
+              type="password"
               name="password"
-              placeholder="Contraseña" 
+              placeholder="Contraseña"
               value={formData.password}
               onChange={handleChange}
-              required 
+              required
             />
             <button type="submit" className="btn btn-custom">Ingresar</button>
             <a href="#" onClick={handleForgotPassword} className="d-block text-center mt-3">
-              ¿Olvidaste tu contraseña?
+              ¿Olvidaste tu contraseña?//en proceso
             </a>
             <Link to="/registro" className="d-block text-center mt-2">
               ¿No tienes una cuenta? Regístrate
@@ -126,6 +220,7 @@ const Login = () => {
       <footer>
         <p>&copy; 2025 RecetApp - Todos los derechos reservados</p>
       </footer>
+      <ToastContainer />
     </>
   );
 };
