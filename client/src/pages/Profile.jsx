@@ -162,7 +162,7 @@ const Perfil = () => {
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/buscar" onClick={(e) => { e.preventDefault(); navigate('/buscar'); }}>
-                    Buscar Recetas
+                    Recetas
                   </a>
                 </li>
                 <li className="nav-item">
@@ -296,7 +296,7 @@ const Perfil = () => {
             </form>
           </div>
 
-          {/* Formulario de Testimonios */}
+          {/* Formulario de Testimonios
           <div className="testimonial-form">
             <h3><FontAwesomeIcon icon={faComment} /> Deja un Testimonio o Sugerencia</h3>
             <form onSubmit={handleTestimonialSubmit}>
@@ -308,7 +308,7 @@ const Perfil = () => {
               />
               <button type="submit" className="btn btn-custom">Enviar</button>
             </form>
-          </div>
+          </div> */}
         </section>
       </main>
 

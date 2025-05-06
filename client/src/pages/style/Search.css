@@ -155,3 +155,68 @@
       .receta-encontrada button {
           margin-top: 20px;
       }
+
+      .card-img-top, .card-title {
+        transition: transform 0.2s;
+      }
+      .card-img-top:hover, .card-title:hover {
+        transform: scale(1.02);
+      }
+
+      /* Carrusel personalizado */
+      /* Mejoras para el carrusel */
+.carousel {
+    padding: 1rem 0;
+  }
+  
+  .carousel-inner {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .carousel-control-prev, 
+  .carousel-control-next {
+    opacity: 1;
+    transition: all 0.3s;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 60px;
+  }
+  
+  .carousel-control-prev:hover,
+  .carousel-control-next:hover {
+    background-color: rgba(0,0,0,0.4) !important;
+  }
+  
+  /* Mejoras para las cards */
+  .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px !important;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  }
+  
+  .object-fit-cover {
+    object-fit: cover;
+  }
+  
+  /* Mejoras para los badges */
+  .badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Botones de paginación */
+  .carousel-indicators button {
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+    margin: 0 5px !important;
+  }
+
+  .carousel-item {
+    transition: transform 0.6s ease-in-out;
+  }
