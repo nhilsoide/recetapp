@@ -3,17 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Carousel, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faHistory, faPlus, faComment, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import './style/Profile.css'; // Archivo de estilos
+import { faHeart, faPlus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import './style/Profile.css';
+
 
 const Perfil = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    name: 'Nhilse',
-    email: 'usuario@example.com'
-  });
+  const userFromStorage = localStorage.getItem('user');
+  const userData = userFromStorage ? JSON.parse(userFromStorage) : null;
 
-  const [newRecipe, setNewRecipe] = useState({
+    const [newRecipe, setNewRecipe] = useState({
     name: '',
     description: '',
     ingredients: '',
@@ -82,8 +81,8 @@ const Perfil = () => {
   const handleRecipeSubmit = (e) => {
     e.preventDefault();
     // Validación básica
-    if (!newRecipe.name || !newRecipe.description || !newRecipe.ingredients || 
-        !newRecipe.instructions || !newRecipe.category || !newRecipe.time) {
+    if (!newRecipe.name || !newRecipe.description || !newRecipe.ingredients ||
+      !newRecipe.instructions || !newRecipe.category || !newRecipe.time) {
       alert('Por favor, completa todos los campos.');
       return;
     }
@@ -181,18 +180,18 @@ const Perfil = () => {
 
       <main className="container mt-5">
         <section className="profile-section">
-          <h2>Cocina de {userData.name}</h2>
+          <h2>Cocina de {userData.nombre}</h2>
           {/* <p><strong>Nombre:</strong> {userData.name}</p> */}
           <p>{userData.email}</p>
           <button className="btn btn-custom">Editar Perfil</button>
 
           {/* Recetas Favoritas */}
-           {/* Carrusel de Recetas Favoritas */}
-           <div className="favorite-recipes">
+          {/* Carrusel de Recetas Favoritas */}
+          <div className="favorite-recipes">
             <h3><FontAwesomeIcon icon={faHeart} /> Recetas Favoritas</h3>
-            
+
             <div style={carouselStyle}>
-              <Carousel 
+              <Carousel
                 prevIcon={<FontAwesomeIcon icon={faChevronLeft} size="2x" color="#000" />}
                 nextIcon={<FontAwesomeIcon icon={faChevronRight} size="2x" color="#000" />}
                 indicators={false}
@@ -201,9 +200,9 @@ const Perfil = () => {
                   <Carousel.Item key={recipe.id} style={carouselItemStyle}>
                     <div className="d-flex h-100">
                       <div className="w-50 h-100">
-                        <img 
+                        <img
                           className="d-block h-100 w-100 object-fit-cover"
-                          src={recipe.image} 
+                          src={recipe.image}
                           alt={recipe.name}
                         />
                       </div>
@@ -212,7 +211,7 @@ const Perfil = () => {
                           {recipe.name}
                         </h3>
                         <p className="text-center">{recipe.description}</p>
-                        <button 
+                        <button
                           className="btn btn-custom align-self-center mt-3"
                           style={{ width: 'fit-content' }}
                         >
@@ -242,37 +241,37 @@ const Perfil = () => {
           <div className="nueva-receta-section">
             <h3><FontAwesomeIcon icon={faPlus} /> Registrar Nueva Receta</h3>
             <form onSubmit={handleRecipeSubmit}>
-              <input 
-                type="text" 
-                placeholder="Nombre de la receta" 
+              <input
+                type="text"
+                placeholder="Nombre de la receta"
                 name="name"
                 value={newRecipe.name}
                 onChange={handleRecipeChange}
-                required 
+                required
               />
-              <textarea 
-                placeholder="Descripción de la receta" 
+              <textarea
+                placeholder="Descripción de la receta"
                 name="description"
                 value={newRecipe.description}
                 onChange={handleRecipeChange}
-                required 
+                required
               />
-              <input 
-                type="text" 
-                placeholder="Ingredientes (separados por comas)" 
+              <input
+                type="text"
+                placeholder="Ingredientes (separados por comas)"
                 name="ingredients"
                 value={newRecipe.ingredients}
                 onChange={handleRecipeChange}
-                required 
+                required
               />
-              <textarea 
-                placeholder="Instrucciones" 
+              <textarea
+                placeholder="Instrucciones"
                 name="instructions"
                 value={newRecipe.instructions}
                 onChange={handleRecipeChange}
-                required 
+                required
               />
-              <select 
+              <select
                 name="category"
                 value={newRecipe.category}
                 onChange={handleRecipeChange}
@@ -284,13 +283,13 @@ const Perfil = () => {
                 <option value="ensaladas">Ensaladas</option>
                 <option value="bebidas">Bebidas</option>
               </select>
-              <input 
-                type="text" 
-                placeholder="Tiempo de preparación (en minutos)" 
+              <input
+                type="text"
+                placeholder="Tiempo de preparación (en minutos)"
                 name="time"
                 value={newRecipe.time}
                 onChange={handleRecipeChange}
-                required 
+                required
               />
               <button type="submit" className="btn btn-custom">Guardar Receta</button>
             </form>
