@@ -25,10 +25,7 @@ const RecipeSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: {
-      values: ['postres', 'principales', 'ensaladas', 'bebidas'],
-      message: 'Categoría no válida'
-    }
+    enum: ['postres', 'principales', 'ensaladas', 'bebidas']
   },
   preparationTime: {
     type: Number, // en minutos
@@ -44,11 +41,15 @@ const RecipeSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'El autor es requerido'],
-    immutable: true // No puede cambiarse después de creado
+    immutable: true
   },
   isActive: {
     type: Boolean,
     default: true
+  },
+  imageUrl: {
+    type: String,
+    default: ''
   },
   createdAt: {
     type: Date,
@@ -71,7 +72,7 @@ RecipeSchema.pre('save', function(next) {
   next();
 });
 
-// Virtual para obtener los ingredientes (populate)
+// Virtual para obtener los ingredientes
 RecipeSchema.virtual('ingredients', {
   ref: 'RecipeIngredient',
   localField: '_id',
@@ -82,11 +83,6 @@ RecipeSchema.virtual('ingredients', {
 // Query helper para recetas activas
 RecipeSchema.query.active = function() {
   return this.where({ isActive: true });
-};
-
-// Query helper para recetas públicas
-RecipeSchema.query.public = function() {
-  return this.where({ visibility: 'pública' });
 };
 
 module.exports = mongoose.model('Recipe', RecipeSchema);
