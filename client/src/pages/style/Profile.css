@@ -179,3 +179,35 @@ main {
     width: 100%;
     margin-top: 10px;
 }
+
+.nueva-receta-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .ingredients-section, .instructions-section {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 5px;
+  }
+  
+  .ingredient-item, .instruction-step {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+  }
+  
+  .add-ingredient {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .add-ingredient input, .add-ingredient select {
+    flex: 1;
+  }

@@ -14,7 +14,7 @@ app.get('/api/mensaje', (req, res) => {
 });
 
 // Iniciar servidor
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// const PORT = 5000;
+// app.listen(PORT, () => {
+//   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+// });

@@ -1,7 +1,7 @@
 // client/src/pages/Perfil.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Carousel, Card } from 'react-bootstrap';
+import { Carousel } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faPlus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import './style/Profile.css';
@@ -11,17 +11,6 @@ const Perfil = () => {
   const navigate = useNavigate();
   const userFromStorage = localStorage.getItem('user');
   const userData = userFromStorage ? JSON.parse(userFromStorage) : null;
-
-    const [newRecipe, setNewRecipe] = useState({
-    name: '',
-    description: '',
-    ingredients: '',
-    instructions: '',
-    category: '',
-    time: ''
-  });
-
-  const [testimonial, setTestimonial] = useState('');
 
   // Datos de ejemplo
   const favoriteRecipes = [
@@ -51,20 +40,104 @@ const Perfil = () => {
     }
   ];
 
-  const recentActivities = [
-    {
-      id: 3,
-      name: 'Pan Casero',
-      image: '/img/pan.jpg',
-      description: 'Aprende a hacer pan casero con pocos ingredientes.'
-    },
-    {
-      id: 4,
-      name: 'Ensalada de Quinoa',
-      image: '/img/ensalada.jpg',
-      description: 'Una ensalada saludable con quinoa y vegetales frescos.'
+  const [newRecipe, setNewRecipe] = useState({
+    name: '',
+    description: '',
+    instructions: [''],
+    category: '',
+    preparationTime: '',
+    difficulty: '',
+    ingredients: []
+  });
+
+  const [ingredientInput, setIngredientInput] = useState({
+    ingredient: '',
+    quantity: '',
+    notes: ''
+  });
+
+  const [availableIngredients, setAvailableIngredients] = useState([]);
+
+  // Cargar ingredientes disponibles al montar el componente
+  useEffect(() => {
+    const fetchIngredients = async () => {
+      try {
+        const response = await fetch('/api/ingredients');
+        const data = await response.json();
+        setAvailableIngredients(data);
+      } catch (error) {
+        console.error('Error fetching ingredients:', error);
+      }
+    };
+    fetchIngredients();
+  }, []);
+
+  const handleIngredientAdd = () => {
+    if (!ingredientInput.ingredient || !ingredientInput.quantity) return;
+
+    setNewRecipe(prev => ({
+      ...prev,
+      ingredients: [...prev.ingredients, {
+        ingredient: ingredientInput.ingredient,
+        quantity: Number(ingredientInput.quantity),
+        notes: ingredientInput.notes
+      }]
+    }));
+
+    setIngredientInput({
+      ingredient: '',
+      quantity: '',
+      notes: ''
+    });
+  };
+
+  const handleIngredientRemove = (index) => {
+    setNewRecipe(prev => ({
+      ...prev,
+      ingredients: prev.ingredients.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleRecipeSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await fetch('/api/recipes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newRecipe)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar la receta');
+      }
+
+      const savedRecipe = await response.json();
+      alert('Receta guardada con éxito!');
+
+      // Resetear el formulario
+      setNewRecipe({
+        name: '',
+        description: '',
+        instructions: [''],
+        category: '',
+        preparationTime: '',
+        difficulty: '',
+        ingredients: []
+      });
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error.message);
     }
-  ];
+  };
+
 
   const handleRecipeChange = (e) => {
     const { name, value } = e.target;
@@ -74,42 +147,6 @@ const Perfil = () => {
     }));
   };
 
-  const handleTestimonialChange = (e) => {
-    setTestimonial(e.target.value);
-  };
-
-  const handleRecipeSubmit = (e) => {
-    e.preventDefault();
-    // Validación básica
-    if (!newRecipe.name || !newRecipe.description || !newRecipe.ingredients ||
-      !newRecipe.instructions || !newRecipe.category || !newRecipe.time) {
-      alert('Por favor, completa todos los campos.');
-      return;
-    }
-    // Aquí iría la lógica para enviar la receta al backend
-    console.log('Nueva receta:', newRecipe);
-    alert('Receta guardada con éxito!');
-    setNewRecipe({
-      name: '',
-      description: '',
-      ingredients: '',
-      instructions: '',
-      category: '',
-      time: ''
-    });
-  };
-
-  const handleTestimonialSubmit = (e) => {
-    e.preventDefault();
-    if (!testimonial) {
-      alert('Por favor, escribe tu testimonio.');
-      return;
-    }
-    // Lógica para enviar testimonio
-    console.log('Testimonio:', testimonial);
-    alert('¡Gracias por tu testimonio!');
-    setTestimonial('');
-  };
 
   // Efecto para el botón de scroll
   useEffect(() => {
@@ -224,19 +261,6 @@ const Perfil = () => {
               </Carousel>
             </div>
           </div>
-
-          {/* Actividad Reciente
-          <div className="recent-activity">
-            <h3><FontAwesomeIcon icon={faHistory} /> Actividad Reciente</h3>
-            {recentActivities.map(activity => (
-              <div key={activity.id} className="recipe-card">
-                <img src={activity.image} alt={activity.name} />
-                <h4>{activity.name}</h4>
-                <p>{activity.description}</p>
-              </div>
-            ))}
-          </div> */}
-
           {/* Formulario de Nueva Receta */}
           <div className="nueva-receta-section">
             <h3><FontAwesomeIcon icon={faPlus} /> Registrar Nueva Receta</h3>
@@ -246,35 +270,113 @@ const Perfil = () => {
                 placeholder="Nombre de la receta"
                 name="name"
                 value={newRecipe.name}
-                onChange={handleRecipeChange}
+                onChange={(e) => setNewRecipe({ ...newRecipe, name: e.target.value })}
                 required
               />
+
               <textarea
                 placeholder="Descripción de la receta"
                 name="description"
                 value={newRecipe.description}
-                onChange={handleRecipeChange}
+                onChange={(e) => setNewRecipe({ ...newRecipe, description: e.target.value })}
                 required
               />
-              <input
-                type="text"
-                placeholder="Ingredientes (separados por comas)"
-                name="ingredients"
-                value={newRecipe.ingredients}
-                onChange={handleRecipeChange}
-                required
-              />
-              <textarea
-                placeholder="Instrucciones"
-                name="instructions"
-                value={newRecipe.instructions}
-                onChange={handleRecipeChange}
-                required
-              />
+
+              <div className="ingredients-section">
+                <h4>Ingredientes</h4>
+                {newRecipe.ingredients.map((ing, index) => (
+                  <div key={index} className="ingredient-item">
+                    <span>
+                      {availableIngredients.find(a => a._id === ing.ingredient)?.name} -
+                      {ing.quantity} {availableIngredients.find(a => a._id === ing.ingredient)?.unit}
+                      {ing.notes && ` (${ing.notes})`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleIngredientRemove(index)}
+                      className="btn btn-sm btn-danger"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
+
+                <div className="add-ingredient">
+                  <select
+                    value={ingredientInput.ingredient}
+                    onChange={(e) => setIngredientInput({ ...ingredientInput, ingredient: e.target.value })}
+                  >
+                    <option value="">Seleccionar ingrediente</option>
+                    {availableIngredients.map(ing => (
+                      <option key={ing._id} value={ing._id}>{ing.name}</option>
+                    ))}
+                  </select>
+
+                  <input
+                    type="number"
+                    placeholder="Cantidad"
+                    value={ingredientInput.quantity}
+                    onChange={(e) => setIngredientInput({ ...ingredientInput, quantity: e.target.value })}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Notas (opcional)"
+                    value={ingredientInput.notes}
+                    onChange={(e) => setIngredientInput({ ...ingredientInput, notes: e.target.value })}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleIngredientAdd}
+                    className="btn btn-sm btn-success"
+                  >
+                    Añadir
+                  </button>
+                </div>
+              </div>
+
+              <div className="instructions-section">
+                <h4>Instrucciones</h4>
+                {newRecipe.instructions.map((step, index) => (
+                  <div key={index} className="instruction-step">
+                    <textarea
+                      placeholder={`Paso ${index + 1}`}
+                      value={step}
+                      onChange={(e) => {
+                        const newInstructions = [...newRecipe.instructions];
+                        newInstructions[index] = e.target.value;
+                        setNewRecipe({ ...newRecipe, instructions: newInstructions });
+                      }}
+                      required
+                    />
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newInstructions = newRecipe.instructions.filter((_, i) => i !== index);
+                          setNewRecipe({ ...newRecipe, instructions: newInstructions });
+                        }}
+                        className="btn btn-sm btn-danger"
+                      >
+                        Eliminar paso
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setNewRecipe({ ...newRecipe, instructions: [...newRecipe.instructions, ''] })}
+                  className="btn btn-sm btn-secondary"
+                >
+                  Añadir paso
+                </button>
+              </div>
+
               <select
                 name="category"
                 value={newRecipe.category}
-                onChange={handleRecipeChange}
+                onChange={(e) => setNewRecipe({ ...newRecipe, category: e.target.value })}
                 required
               >
                 <option value="">Selecciona una categoría</option>
@@ -283,31 +385,32 @@ const Perfil = () => {
                 <option value="ensaladas">Ensaladas</option>
                 <option value="bebidas">Bebidas</option>
               </select>
+
               <input
-                type="text"
+                type="number"
                 placeholder="Tiempo de preparación (en minutos)"
-                name="time"
-                value={newRecipe.time}
-                onChange={handleRecipeChange}
+                name="preparationTime"
+                value={newRecipe.preparationTime}
+                onChange={(e) => setNewRecipe({ ...newRecipe, preparationTime: e.target.value })}
                 required
+                min="1"
               />
+
+              <select
+                name="difficulty"
+                value={newRecipe.difficulty}
+                onChange={(e) => setNewRecipe({ ...newRecipe, difficulty: e.target.value })}
+                required
+              >
+                <option value="">Selecciona dificultad</option>
+                <option value="fácil">Fácil</option>
+                <option value="media">Media</option>
+                <option value="difícil">Difícil</option>
+              </select>
+
               <button type="submit" className="btn btn-custom">Guardar Receta</button>
             </form>
           </div>
-
-          {/* Formulario de Testimonios
-          <div className="testimonial-form">
-            <h3><FontAwesomeIcon icon={faComment} /> Deja un Testimonio o Sugerencia</h3>
-            <form onSubmit={handleTestimonialSubmit}>
-              <textarea 
-                rows="5" 
-                placeholder="Escribe tu testimonio o sugerencia aquí..." 
-                value={testimonial}
-                onChange={handleTestimonialChange}
-              />
-              <button type="submit" className="btn btn-custom">Enviar</button>
-            </form>
-          </div> */}
         </section>
       </main>
 

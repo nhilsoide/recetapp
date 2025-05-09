@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
-const recipeRoutes = require('./routes/recipes');
 
 // Inicializar app
 const app = express();
@@ -16,7 +15,8 @@ app.use(express.json({ extended: false }));
 
 // Rutas
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/recipes', recipeRoutes); // ruta de recetas
+app.use('/api/recipes', require('./routes/recipeRoutes'));
+app.use('/api/ingredients', require('./routes/ingredientRoutes'));
 
 // Ruta de prueba
 app.get('/', (req, res) => res.send('API de RecetApp funcionando'));

@@ -48,6 +48,7 @@ function Home() {
                 <a href="/perfil" className="btn btn-success mx-2">Perfil</a>
                 <button onClick={() => {
                   localStorage.removeItem('token');
+                  localStorage.removeItem('user');
                   window.location.reload(); // Recarga la página para actualizar el estado
                 }} className="btn btn-danger mx-2">Cerrar Sesión</button>
               </>
