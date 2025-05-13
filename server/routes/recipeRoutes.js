@@ -1,12 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const recipeController = require('../controllers/recipeController');
-const auth = require('../middleware/auth'); // Asegúrate de importar el middleware
+const auth = require('../middleware/auth');
+const upload = require('../config/upload');
 
 // Rutas públicas
 router.get('/', recipeController.getActiveRecipes);
 
-// Rutas protegidas (requieren autenticación)
-router.post('/', auth, recipeController.createRecipe); // Añade el middleware aquí
+// Ruta para crear receta (protegida y con upload de imagen)
+router.post('/', 
+  auth,                      // Primero verifica autenticación
+  upload.single('image'),    // Luego procesa la imagen
+  recipeController.createRecipe // Finalmente el controlador
+);
 
 module.exports = router;

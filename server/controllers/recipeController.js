@@ -1,37 +1,79 @@
 const Recipe = require('../models/Recipe');
 const RecipeIngredient = require('../models/RecipeIngredient');
 const Ingredient = require('../models/Ingredient');
+const multer = require('multer');
+const path = require('path');
 
 // Crear receta
 exports.createRecipe = async (req, res) => {
   try {
-    const { ingredients, ...recipeData } = req.body;
-    recipeData.author = req.user.id;
+    console.log("Cuerpo completo recibido:", req.body); // Debug
 
-    // Validar ingredientes
-    if (ingredients && ingredients.length > 0) {
-      const ingredientIds = ingredients.map(ing => ing.ingredient);
-      const existingIngredients = await Ingredient.find({
-        _id: { $in: ingredientIds }
+    // 1. Procesar imagen
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+
+    // 2. Verificar campos requeridos con mejor manejo de errores
+    const requiredFields = ['name', 'description', 'instructions', 'ingredients', 'difficulty'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: `Missing required fields: ${missingFields.join(', ')}`,
+        received: req.body
       });
-
-      if (existingIngredients.length !== ingredientIds.length) {
-        return res.status(400).json({ error: 'Uno o más ingredientes no existen' });
-      }
     }
+
+    // 3. Parsear datos seguramente
+    let parsedInstructions, parsedIngredients;
+
+    try {
+      parsedInstructions = typeof req.body.instructions === 'string'
+        ? JSON.parse(req.body.instructions)
+        : req.body.instructions;
+
+      parsedIngredients = typeof req.body.ingredients === 'string'
+        ? JSON.parse(req.body.ingredients)
+        : req.body.ingredients;
+    } catch (parseError) {
+      console.error("Error parseando:", parseError);
+      return res.status(400).json({
+        error: "Formato inválido en instrucciones o ingredientes",
+        sample_format: {
+          instructions: '["Paso 1", "Paso 2"]',
+          ingredients: '[{"ingredient":"id","quantity":1}]'
+        }
+      });
+    }
+
+    // 4. Construir objeto de receta
+    const recipeData = {
+      name: req.body.name,
+      description: req.body.description,
+      instructions: parsedInstructions,
+      ingredients: parsedIngredients,
+      category: req.body.category || 'otros',
+      preparationTime: parseInt(req.body.preparationTime) || 30,
+      difficulty: req.body.difficulty || 'media',
+      imageUrl,
+      author: req.user.id
+    };
+    console.log("Archivo recibido:", req.file);
 
     const recipe = await Recipe.create(recipeData);
 
-    // Asociar ingredientes si existen
-    if (ingredients && ingredients.length > 0) {
-      const recipeIngredients = ingredients.map(ing => ({
-        ...ing,
+    // Asociar ingredientes
+    if (parsedIngredients.length > 0) {
+      const recipeIngredients = parsedIngredients.map(ing => ({
+        ingredient: ing.ingredient,
+        quantity: ing.quantity,
+        notes: ing.notes || '',
         recipe: recipe._id
       }));
       await RecipeIngredient.insertMany(recipeIngredients);
     }
 
-    // Obtener la receta con sus ingredientes
+    // Responder con la receta completa
     const fullRecipe = await Recipe.findById(recipe._id)
       .populate({
         path: 'ingredients',
@@ -40,8 +82,18 @@ exports.createRecipe = async (req, res) => {
       .populate('author', 'nombre email');
 
     res.status(201).json(fullRecipe);
+
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error completo:", {
+      message: error.message,
+      stack: error.stack,
+      receivedBody: req.body,
+      receivedFile: req.file
+    });
+    res.status(500).json({
+      error: "Error interno del servidor",
+      details: error.message
+    });
   }
 };
 
@@ -70,12 +122,12 @@ exports.getRecipes = async (req, res) => {
   try {
     const { category, difficulty, time, search } = req.query;
     const query = {};
-    
+
     // Filtros básicos
     if (category) query.category = category;
     if (difficulty) query.difficulty = difficulty;
     if (time) query.preparationTime = { $lte: parseInt(time) };
-    
+
     // Búsqueda por texto
     if (search) {
       query.$or = [
@@ -87,7 +139,7 @@ exports.getRecipes = async (req, res) => {
     // Para usuarios normales: solo recetas públicas y activas
     query.isActive = true;
     // query.visibility = 'pública';       
-    
+
     // Para admin: obtiene todas las recetas
     if (req.user?.role === 'admin') {
       delete query.isActive;
@@ -229,3 +281,16 @@ exports.toggleRecipeStatus = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Configuración de Multer (debes mover esto desde el archivo multer.js o importarlo)
+const upload = multer({
+  dest: 'uploads/',
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes'), false);
+    }
+  }
+});
