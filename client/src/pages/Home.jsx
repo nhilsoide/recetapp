@@ -1,17 +1,48 @@
-// client/src/pages/Home.js
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './style/Home.css'; // Crearemos este archivo para los estilos
+import './style/Home.css';
 import { useEffect, useState } from 'react';
-
+import RecipeCard from '../components/RecipeCard';
 function Home() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [recentRecipes, setRecentRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
 
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token); // Si hay token, es true; si no, false
+
+    // Función para obtener recetas recientes
+    const fetchRecentRecipes = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/recipes?limit=3');
+        if (!response.ok) {
+          throw new Error('Error al cargar recetas');
+        }
+        const data = await response.json();
+
+        // Asegurar que las imágenes tengan la URL completa si es necesario
+        const recipesWithImages = data.map(recipe => ({
+          ...recipe,
+          // Si imageUrl es solo el nombre del archivo, construye la URL completa
+          imageUrl: recipe.imageUrl
+            ? `http://localhost:5000${recipe.imageUrl}`
+            : '/img/default-recipe.jpg'
+        }));
+
+        setRecentRecipes(recipesWithImages);
+      } catch (err) {
+        console.error('Error fetching recipes:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentRecipes();
 
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");
@@ -63,12 +94,11 @@ function Home() {
 
       <main className="container mt-5">
 
-      {!isAuthenticated && (
-  <div className="alert-login">
-    ⚠️ Para disfrutar de todas las funcionalidades, por favor <a href="/login" style={{ color: 'blue', textDecoration: 'underline' }}>inicia sesión</a>.
-  </div>
-)}
-
+        {!isAuthenticated && (
+          <div className="alert-login">
+            ⚠️ Para disfrutar de todas las funcionalidades, por favor <a href="/login" style={{ color: 'blue', textDecoration: 'underline' }}>inicia sesión</a>.
+          </div>
+        )}
 
         {/* Carrusel de recetas Populares */}
         <section>
@@ -98,31 +128,25 @@ function Home() {
         </section>
 
         {/* Sección de recetas recientes */}
-        <section class="mt-5">
+        <section className="mt-5">
           <h2>Recién cocinadas</h2>
-          <div class="row">
-            <div class="col-md-4">
-              <div class="post">
-                <img src="img/tarta-de-manzana.jpg" alt="Tarta de manzana" />
-                <h3>Tarta de Manzana</h3>
-                <p>Una deliciosa tarta de manzana con un toque de canela y una base crujiente.</p>
+          {loading ? (
+            <div className="text-center">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Cargando...</span>
               </div>
             </div>
-            <div class="col-md-4">
-              <div class="post">
-                <img src="img/pasta.jpg" alt="Pasta al pesto" />
-                <h3>Pasta al Pesto</h3>
-                <p>Receta tradicional italiana con albahaca fresca, piñones y queso parmesano.</p>
-              </div>
+          ) : error ? (
+            <div className="alert alert-danger">Error al cargar recetas: {error}</div>
+          ) : recentRecipes.length === 0 ? (
+            <div className="alert alert-info">No hay recetas recientes para mostrar</div>
+          ) : (
+            <div className="row">
+              {recentRecipes.map((recipe) => (
+                <RecipeCard key={recipe._id} recipe={recipe} />
+              ))}
             </div>
-            <div class="col-md-4">
-              <div class="post">
-                <img src="img/pan.jpg" alt="Pan casero" />
-                <h3>Pan Casero</h3>
-                <p>Aprende a hacer pan casero con pocos ingredientes y sin necesidad de amasadora.</p>
-              </div>
-            </div>
-          </div>
+          )}
         </section>
 
         {/* Sección de categorías de recetas */}
@@ -149,7 +173,7 @@ function Home() {
               <img src="img/bebidas.jpg" alt="Bebidas" />
               <h3>Bebidas</h3>
             </div>
-            
+
           </div>
         </section>
 

@@ -220,3 +220,32 @@
   .carousel-item {
     transition: transform 0.6s ease-in-out;
   }
+  /* Estilos para la sección de detalles */
+.receta-detalle {
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.bg-custom {
+  background-color: #619762;
+}
+
+.btn-outline-custom {
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+}
+
+.btn-outline-custom:hover {
+  background-color: #619762;
+  color: white;
+}
+
+.list-group-item {
+  padding: 0.75rem 1.25rem;
+  border-left: none;
+  border-right: none;
+}
+
+.list-group-numbered li::before {
+  font-weight: bold;
+}

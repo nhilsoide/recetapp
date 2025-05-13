@@ -97,6 +97,46 @@ exports.createRecipe = async (req, res) => {
   }
 };
 
+// Recetas activas
+exports.getActiveRecipes = async (req, res) => {
+  try {
+    const { category, difficulty, time, search, limit } = req.query;
+    const query = { isActive: true };
+
+    // Filtros
+    if (category) query.category = category;
+    if (difficulty) query.difficulty = difficulty;
+    if (time) query.preparationTime = { $lte: parseInt(time) };
+
+    // Búsqueda
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    let queryBuilder = Recipe.find(query)
+      .populate('author', 'nombre')
+      .populate({
+        path: 'ingredients',
+        populate: { path: 'ingredient' }
+      })
+      .sort({ createdAt: -1 });
+
+    if (limit) {
+      queryBuilder = queryBuilder.limit(parseInt(limit));
+    }
+
+    const recipes = await queryBuilder.exec();
+
+    res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 // Obtener receta por ID
 exports.getRecipeById = async (req, res) => {
   try {
@@ -164,37 +204,6 @@ exports.getRecipes = async (req, res) => {
 };
 
 // Obtener todas las recetas activas
-exports.getActiveRecipes = async (req, res) => {
-  try {
-    const { category, difficulty, time, search } = req.query;
-    const query = { isActive: true };
-
-    // Filtros
-    if (category) query.category = category;
-    if (difficulty) query.difficulty = difficulty;
-    if (time) query.preparationTime = { $lte: parseInt(time) };
-
-    // Búsqueda
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    const recipes = await Recipe.find(query)
-      .populate('author', 'nombre')
-      .populate({
-        path: 'ingredients',
-        populate: { path: 'ingredient' }
-      })
-      .sort({ createdAt: -1 });
-
-    res.json(recipes);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
 
 // Obtener recetas del usuario (activas e inactivas)
 exports.getUserRecipes = async (req, res) => {

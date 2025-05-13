@@ -417,60 +417,111 @@ const Buscar = () => {
           </div>
 
           {/* Indicadores de paginación mejorados */}
-<div className="d-flex justify-content-center mt-4">
-  {recetasPorCategoria[categoriaSeleccionada].map((_, index) => (
-    <button
-      key={index}
-      type="button"
-      className={`mx-1 p-0 border-0 bg-${
-        index === activeIndex ? 'dark' : 'secondary'
-      }`}
-      style={{
-        width: index === activeIndex ? '20px' : '8px',
-        height: '8px',
-        borderRadius: '4px',
-        transition: 'all 0.3s ease'
-      }}
-      onClick={() => goToSlide(index)}
-      aria-label={`Ir a receta ${index + 1}`}
-    />
-  ))}
-</div>
+          <div className="d-flex justify-content-center mt-4">
+            {recetasPorCategoria[categoriaSeleccionada].map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`mx-1 p-0 border-0 bg-${index === activeIndex ? 'dark' : 'secondary'
+                  }`}
+                style={{
+                  width: index === activeIndex ? '20px' : '8px',
+                  height: '8px',
+                  borderRadius: '4px',
+                  transition: 'all 0.3s ease'
+                }}
+                onClick={() => goToSlide(index)}
+                aria-label={`Ir a receta ${index + 1}`}
+              />
+            ))}
+          </div>
         </section>
 
         {recetaMostrada && (
-          <section className="receta-encontrada mt-4 p-4 bg-white rounded shadow" id="receta-detalle">
-            <h3>{recetaMostrada.nombre}</h3>
-            <img
-              src={recetaMostrada.imagen}
-              alt={recetaMostrada.nombre}
-              className="img-fluid rounded mb-3"
-            />
-            <p>{recetaMostrada.descripcion}</p>
+          <section className="receta-detalle mt-5 p-4 bg-white rounded shadow-lg" id="receta-detalle">
             <div className="row">
-              <div className="col-md-6">
-                <h5>Ingredientes:</h5>
-                <ul>
-                  {recetaMostrada.ingredientes.map((ingrediente, index) => (
-                    <li key={index}>{ingrediente}</li>
-                  ))}
-                </ul>
+              {/* Columna de imagen */}
+              <div className="col-md-5 mb-4 mb-md-0">
+                <img
+                  src={recetaMostrada.imagen}
+                  alt={recetaMostrada.nombre}
+                  className="img-fluid rounded shadow"
+                  style={{ maxHeight: '400px', width: '100%', objectFit: 'cover' }}
+                />
+                <div className="d-flex justify-content-between mt-3">
+                  <span className="badge bg-secondary py-2 px-3">
+                    ⏱️ {recetaMostrada.tiempo}
+                  </span>
+                  <span className="badge bg-secondary py-2 px-3">
+                    🏋️ Dificultad: {recetaMostrada.dificultad}
+                  </span>
+                  <span className="badge bg-secondary py-2 px-3">
+                    🍽️ {recetaMostrada.categoria}
+                  </span>
+                </div>
               </div>
-              <div className="col-md-6">
-                <h5>Instrucciones:</h5>
-                <ol>
-                  {recetaMostrada.instrucciones.map((instruccion, index) => (
-                    <li key={index}>{instruccion}</li>
-                  ))}
-                </ol>
+
+              {/* Columna de contenido */}
+              <div className="col-md-7">
+                <h2 className="mb-3">{recetaMostrada.nombre}</h2>
+                <p className="lead">{recetaMostrada.descripcion}</p>
+
+                <div className="row mt-4">
+                  {/* Ingredientes */}
+                  <div className="col-md-6">
+                    <div className="card h-100 border-0 shadow-sm">
+                      <div className="card-header bg-custom text-white">
+                        <h5 className="mb-0">Ingredientes</h5>
+                      </div>
+                      <div className="card-body">
+                        <ul className="list-group list-group-flush">
+                          {recetaMostrada.ingredientes.map((ingrediente, index) => (
+                            <li key={index} className="list-group-item d-flex align-items-center">
+                              <span className="me-2">•</span>
+                              {ingrediente}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Instrucciones */}
+                  <div className="col-md-6 mt-3 mt-md-0">
+                    <div className="card h-100 border-0 shadow-sm">
+                      <div className="card-header bg-custom text-white">
+                        <h5 className="mb-0">Instrucciones</h5>
+                      </div>
+                      <div className="card-body">
+                        <ol className="list-group list-group-numbered list-group-flush">
+                          {recetaMostrada.instrucciones.map((instruccion, index) => (
+                            <li key={index} className="list-group-item">
+                              {instruccion}
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botones de acción */}
+                <div className="d-flex gap-3 mt-4">
+                  <button
+                    className="btn btn-custom flex-grow-1 py-2"
+                    onClick={() => alert("Receta añadida a favoritos")}
+                  >
+                    ♥ Añadir a Favoritos
+                  </button>
+                  <button
+                    className="btn btn-outline-custom flex-grow-1 py-2"
+                    onClick={() => setRecetaMostrada(null)}
+                  >
+                    Volver a la lista
+                  </button>
+                </div>
               </div>
             </div>
-            <button
-              className="btn btn-custom mt-3"
-              onClick={() => alert("Receta añadida a favoritos")}
-            >
-              ♥ Añadir a Favoritos
-            </button>
           </section>
         )}
 
