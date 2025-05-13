@@ -192,7 +192,8 @@ exports.getRecipes = async (req, res) => {
         path: 'ingredients',
         populate: {
           path: 'ingredient',
-          model: 'Ingredient'
+          model: 'Ingredient', // Asegurar población completa
+          select: 'name unit' // Seleccionar campos necesarios
         }
       })
       .sort({ createdAt: -1 });

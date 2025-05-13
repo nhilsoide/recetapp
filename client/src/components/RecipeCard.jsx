@@ -1,14 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
 
-const RecipeCard = ({ recipe }) => {
+const RecipeCard = ({ recipe, onClick, carouselMode = false }) => {
+
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpand = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <div className="col-md-4 mb-4">
-      <div className="card h-100">
+    <div className={`${carouselMode ? '' : 'col-md-4 mb-4'}`}>
+      <div className={`card h-100 ${carouselMode ? 'border-0 shadow-sm' : ''}`}>
         <Link to={`/receta/${recipe._id}`}>
           <img 
-            src={recipe.imageUrl || '/img/default-recipe.jpg'} 
+            src={recipe.imageUrl ? `http://localhost:5000${recipe.imageUrl}` : '/default-recipe.jpg'}
             className="card-img-top img-fluid" 
             alt={recipe.name}
             style={{ 

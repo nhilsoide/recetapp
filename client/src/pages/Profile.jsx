@@ -212,21 +212,21 @@ const Perfil = () => {
         },
         body: formData
       });
+
+      const responseText = await response.text();
       if (!response.ok) {
-        let errorMessage = 'Error al guardar la receta';
         try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
+          const errorData = JSON.parse(responseText);
+          throw new Error(errorData.error || 'Error al guardar la receta');
         } catch (parseError) {
-          const text = await response.text(); // Captura el texto plano
-          errorMessage = `Respuesta no válida: ${text}`;
+          throw new Error(responseText || 'Error al guardar la receta');
         }
-        throw new Error(errorMessage);
       }
 
 
-      const result = await response.json();
+      const result = JSON.parse(responseText);
       alert(`Receta "${result.name}" guardada con ID: ${result._id}`);
+
       // Reset form after successful submission
       setNewRecipe({
         name: '',
@@ -238,10 +238,6 @@ const Perfil = () => {
         ingredients: [],
         image: null
       });
-
-
-      // Si todo está bien, parsea la respuesta como JSON
-      alert(`Receta "${result.name}" guardada con ID: ${result._id}`);
 
     } catch (error) {
       console.error("Error completo:", error);

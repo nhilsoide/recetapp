@@ -1,0 +1,179 @@
+// Datos de las recetas (podrían venir de una API)
+  // const recetas = {
+  //   // Postres
+  //   "Tarta de Manzana": {
+  //     imagen: "/img/tarta-de-manzana.jpg",
+  //     descripcion: "Una deliciosa tarta de manzana con un toque de canela y una base crujiente.",
+  //     ingredientes: ["4 manzanas", "200g de harina", "100g de mantequilla", "100g de azúcar", "1 cucharadita de canela"],
+  //     instrucciones: [
+  //       "Precalienta el horno a 180°C.",
+  //       "Pela y corta las manzanas en rodajas.",
+  //       "Mezcla la harina, la mantequilla y el azúcar hasta obtener una masa homogénea.",
+  //       "Coloca la masa en un molde y añade las rodajas de manzana encima.",
+  //       "Espolvorea canela y hornea durante 30 minutos."
+  //     ],
+  //     categoria: "postres",
+  //     tiempo: "45 min",
+  //     dificultad: "media"
+  //   },
+  //   "Cheesecake de Frutos Rojos": {
+  //     imagen: "/img/cheesecake.jpg",
+  //     descripcion: "Suave cheesecake con una base de galleta y topping de frutos rojos.",
+  //     ingredientes: ["200g galletas digestivas", "100g mantequilla", "500g queso crema", "200ml nata", "150g azúcar", "200g frutos rojos"],
+  //     instrucciones: [
+  //       "Tritura las galletas y mézclalas con la mantequilla derretida.",
+  //       "Prepara el relleno batiendo el queso crema con la nata y el azúcar.",
+  //       "Vierte sobre la base de galletas y refrigera 4 horas.",
+  //       "Decora con frutos rojos antes de servir."
+  //     ],
+  //     categoria: "postres",
+  //     tiempo: "30 min",
+  //     dificultad: "facil"
+  //   },
+  //   "Flan de Vainilla": {
+  //     imagen: "/img/flan.jpg",
+  //     descripcion: "Clásico flan casero con caramelo líquido.",
+  //     ingredientes: ["5 huevos", "500ml leche", "150g azúcar", "1 vaina de vainilla", "100g azúcar para caramelo"],
+  //     instrucciones: [
+  //       "Prepara caramelo derritiendo azúcar y viértelo en el molde.",
+  //       "Bate los huevos con el azúcar y la leche infusionada con vainilla.",
+  //       "Vierte en el molde y cocina a baño María 45 minutos.",
+  //       "Enfría y desmolda con cuidado."
+  //     ],
+  //     categoria: "postres",
+  //     tiempo: "60 min",
+  //     dificultad: "media"
+  //   },
+
+  //   // Platos principales
+  //   "Pasta al Pesto": {
+  //     imagen: "/img/pasta.jpg",
+  //     descripcion: "Receta tradicional italiana con albahaca fresca y queso parmesano.",
+  //     ingredientes: ["300g de pasta", "50g de albahaca fresca", "50g de piñones", "50g de queso parmesano", "Aceite de oliva"],
+  //     instrucciones: [
+  //       "Cocina la pasta según las instrucciones del paquete.",
+  //       "En un procesador, mezcla la albahaca, los piñones y el queso parmesano.",
+  //       "Añade aceite de oliva hasta obtener una salsa homogénea.",
+  //       "Mezcla la pasta con la salsa y sirve."
+  //     ],
+  //     categoria: "platos principales",
+  //     tiempo: "25 min",
+  //     dificultad: "facil"
+  //   },
+  //   "Pollo al Curry": {
+  //     imagen: "/img/pollo-curry.jpg",
+  //     descripcion: "Pollo tierno en salsa de curry con leche de coco.",
+  //     ingredientes: ["4 pechugas de pollo", "1 cebolla", "2 dientes de ajo", "2 cucharadas de curry", "400ml leche de coco", "1 pimiento rojo"],
+  //     instrucciones: [
+  //       "Dora el pollo cortado en cubos y reserva.",
+  //       "Sofríe la cebolla, ajo y pimiento.",
+  //       "Añade el curry y luego la leche de coco.",
+  //       "Incorporar el pollo y cocinar 15 minutos."
+  //     ],
+  //     categoria: "platos principales",
+  //     tiempo: "40 min",
+  //     dificultad: "media"
+  //   },
+  //   "Lasagna Bolognesa": {
+  //     imagen: "/img/lasagna.jpg",
+  //     descripcion: "Clásica lasagna italiana con carne y bechamel.",
+  //     ingredientes: ["12 láminas de lasaña", "500g carne picada", "1 cebolla", "800g tomate triturado", "50g mantequilla", "50g harina", "500ml leche", "200g queso rallado"],
+  //     instrucciones: [
+  //       "Prepara la salsa boloñesa sofriendo la carne con verduras.",
+  //       "Haz la bechamel derritiendo mantequilla, añadiendo harina y luego leche.",
+  //       "Alterna capas de pasta, salsa y bechamel.",
+  //       "Hornea 30 minutos a 180°C."
+  //     ],
+  //     categoria: "platos principales",
+  //     tiempo: "90 min",
+  //     dificultad: "dificil"
+  //   },
+
+  //   // Bebidas
+  //   "Limonada Fresca": {
+  //     imagen: "/img/limonada.jpg",
+  //     descripcion: "Refrescante limonada perfecta para días calurosos.",
+  //     ingredientes: ["4 limones", "1 litro de agua", "100g de azúcar", "Hielo"],
+  //     instrucciones: [
+  //       "Exprime los limones para obtener su jugo.",
+  //       "Disuelve el azúcar en un poco de agua caliente.",
+  //       "Mezcla el jugo de limón con el agua azucarada y el resto del agua fría.",
+  //       "Añade hielo y sirve frío."
+  //     ],
+  //     categoria: "bebidas",
+  //     tiempo: "10 min",
+  //     dificultad: "facil"
+  //   },
+  //   "Smoothie de Frutos Tropicales": {
+  //     imagen: "/img/smoothie.jpg",
+  //     descripcion: "Batido cremoso con mango, piña y plátano.",
+  //     ingredientes: ["1 mango", "2 rodajas de piña", "1 plátano", "200ml leche", "1 cucharada de miel"],
+  //     instrucciones: [
+  //       "Pela y corta todas las frutas.",
+  //       "Mezcla en la licuadora con la leche.",
+  //       "Añade hielo si deseas y endulza con miel.",
+  //       "Sirve inmediatamente."
+  //     ],
+  //     categoria: "bebidas",
+  //     tiempo: "10 min",
+  //     dificultad: "facil"
+  //   },
+  //   "Café Dalgona": {
+  //     imagen: "/img/dalgona.jpg",
+  //     descripcion: "Tendencia coreana de café batido cremoso.",
+  //     ingredientes: ["2 cucharadas de café instantáneo", "2 cucharadas de azúcar", "2 cucharadas de agua caliente", "200ml leche"],
+  //     instrucciones: [
+  //       "Bate el café, azúcar y agua hasta que doble su volumen.",
+  //       "Llena un vaso con leche fría.",
+  //       "Vierte suavemente la mezcla de café encima.",
+  //       "Remueve antes de beber."
+  //     ],
+  //     categoria: "bebidas",
+  //     tiempo: "5 min",
+  //     dificultad: "facil"
+  //   },
+
+  //   // Ensaladas
+  //   "Ensalada César": {
+  //     imagen: "/img/ensalada.jpg",
+  //     descripcion: "Clásica ensalada César con crotones y aderezo cremoso.",
+  //     ingredientes: ["1 lechuga romana", "50g de queso parmesano", "1 taza de crotones", "Aderezo César", "Pollo opcional"],
+  //     instrucciones: [
+  //       "Lava y corta la lechuga en trozos.",
+  //       "Añade los crotones y el queso parmesano rallado.",
+  //       "Mezcla con el aderezo César.",
+  //       "Si deseas, añade pollo a la parrilla cortado en tiras."
+  //     ],
+  //     categoria: "ensaladas",
+  //     tiempo: "15 min",
+  //     dificultad: "facil"
+  //   },
+  //   "Ensalada Griega": {
+  //     imagen: "/img/griega.jpg",
+  //     descripcion: "Fresca ensalada mediterránea con queso feta.",
+  //     ingredientes: ["1 pepino", "4 tomates", "1 cebolla roja", "200g queso feta", "Aceitunas kalamata", "Aceite de oliva", "Orégano"],
+  //     instrucciones: [
+  //       "Corta en cubos el pepino y tomate.",
+  //       "Rebanar finamente la cebolla.",
+  //       "Mezclar todo con aceitunas y cubrir con queso feta.",
+  //       "Aliñar con aceite y orégano."
+  //     ],
+  //     categoria: "ensaladas",
+  //     tiempo: "20 min",
+  //     dificultad: "facil"
+  //   },
+  //   "Ensalada de Quinoa": {
+  //     imagen: "/img/quinoa.jpg",
+  //     descripcion: "Ensalada saludable con quinoa y vegetales frescos.",
+  //     ingredientes: ["200g quinoa", "1 aguacate", "1 mango", "1 pimiento rojo", "50g arándanos secos", "Limón", "Aceite de oliva"],
+  //     instrucciones: [
+  //       "Cocina la quinoa según instrucciones.",
+  //       "Corta en cubos el aguacate, mango y pimiento.",
+  //       "Mezcla todo con los arándanos.",
+  //       "Aliña con jugo de limón y aceite."
+  //     ],
+  //     categoria: "ensaladas",
+  //     tiempo: "30 min",
+  //     dificultad: "media"
+  //   }
+  // };

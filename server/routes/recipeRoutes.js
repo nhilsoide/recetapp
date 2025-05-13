@@ -4,14 +4,17 @@ const recipeController = require('../controllers/recipeController');
 const auth = require('../middleware/auth');
 const upload = require('../config/upload');
 
-// Rutas públicas
-router.get('/', recipeController.getActiveRecipes);
+// Rutas principales
+router.get('/', recipeController.getRecipes);
 
-// Ruta para crear receta (protegida y con upload de imagen)
-router.post('/', 
-  auth,                      // Primero verifica autenticación
-  upload.single('image'),    // Luego procesa la imagen
-  recipeController.createRecipe // Finalmente el controlador
-);
+// Ruta de prueba (opcional)
+router.get('/mensaje', (req, res) => {
+  res.status(200).json({ 
+    status: 'success',
+    message: 'Endpoint configurado correctamente' 
+  });
+});
+
+router.post('/', auth, upload.single('image'), recipeController.createRecipe);
 
 module.exports = router;

@@ -11,7 +11,6 @@ function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token); // Si hay token, es true; si no, false
 
@@ -23,7 +22,6 @@ function Home() {
           throw new Error('Error al cargar recetas');
         }
         const data = await response.json();
-
         // Asegurar que las imágenes tengan la URL completa si es necesario
         const recipesWithImages = data.map(recipe => ({
           ...recipe,

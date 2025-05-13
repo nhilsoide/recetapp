@@ -249,3 +249,19 @@
 .list-group-numbered li::before {
   font-weight: bold;
 }
+/* Transición suave para la carga */
+.container {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Spinner personalizado */
+.spinner-border.text-custom {
+  color: #4CAF50;
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Asegurar que el contenedor ocupe toda la pantalla durante la carga */
+.vh-100 {
+  min-height: 100vh;
+}
