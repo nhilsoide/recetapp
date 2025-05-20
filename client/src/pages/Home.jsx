@@ -3,12 +3,23 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Home.css';
 import { useEffect, useState } from 'react';
 import RecipeCard from '../components/RecipeCard';
+import { useNavigate } from 'react-router-dom';
 function Home() {
-
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [recentRecipes, setRecentRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleViewRecipe = (recipe) => {
+    navigate('/buscar', {
+      state: {
+        preselectedRecipeId: recipe._id,
+        scrollToRecipe: true
+      }
+    });
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -18,20 +29,10 @@ function Home() {
     const fetchRecentRecipes = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/recipes?limit=3');
-        if (!response.ok) {
-          throw new Error('Error al cargar recetas');
-        }
-        const data = await response.json();
-        // Asegurar que las imágenes tengan la URL completa si es necesario
-        const recipesWithImages = data.map(recipe => ({
-          ...recipe,
-          // Si imageUrl es solo el nombre del archivo, construye la URL completa
-          imageUrl: recipe.imageUrl
-            ? `http://localhost:5000${recipe.imageUrl}`
-            : '/img/default-recipe.jpg'
-        }));
+        if (!response.ok) throw new Error('Error al cargar recetas');
 
-        setRecentRecipes(recipesWithImages);
+        const data = await response.json();
+        setRecentRecipes(data);
       } catch (err) {
         console.error('Error fetching recipes:', err);
         setError(err.message);
@@ -141,7 +142,11 @@ function Home() {
           ) : (
             <div className="row">
               {recentRecipes.map((recipe) => (
-                <RecipeCard key={recipe._id} recipe={recipe} />
+                <RecipeCard
+                  key={recipe._id}
+                  recipe={recipe}
+                  onViewRecipe={handleViewRecipe}
+                />
               ))}
             </div>
           )}
@@ -174,18 +179,6 @@ function Home() {
 
           </div>
         </section>
-
-        {/* Formulario de suscripción */}
-        {/* <section class="mt-5">
-          <div class="subscription-form">
-            <h2>Suscríbete para recibir recetas</h2>
-            <form>
-              <input type="email" class="form-control" placeholder="Ingresa tu correo" />
-              <button type="submit" class="btn btn-custom">Suscribirme</button>
-            </form>
-          </div>
-        </section> */}
-
       </main>
 
       <button id="btn-scroll-top" onClick={scrollToTop}>&#8679;</button>

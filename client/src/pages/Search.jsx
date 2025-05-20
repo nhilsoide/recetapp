@@ -2,45 +2,75 @@ import React, { useState, useEffect, useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Search.css';
 import RecipeCard from '../components/RecipeCard';
-import RecipeDetail from '../components/RecipeDetail';
 import Spinner from '../components/Spinner';
-
+import RecipeDetail from '../components/RecipeDetail';
+import { useLocation } from 'react-router-dom';
 const Buscar = () => {
-  // Estados
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [recipes, setRecipes] = useState([]);
-  const [error, setError] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('todas');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const location = useLocation();
+  const [selectedRecipeId, setSelectedRecipeId] = useState(
+    location.state?.preselectedRecipeId || null
+  );
+  const [error] = useState(null);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isDetailLoading, setIsDetailLoading] = useState(false)
 
-  // Obtener recetas de la API
+  const handleViewRecipe = async (recipe) => {
+  setIsDetailLoading(true);
+  setSelectedRecipe(recipe);
+  setSelectedRecipeId(recipe._id);
+  
+  await new Promise(resolve => setTimeout(resolve, 300)); // Pequeña pausa para la animación
+  
+  // Usar requestAnimationFrame para mejor rendimiento
+  requestAnimationFrame(() => {
+    const detailSection = document.getElementById('recipe-detail-section');
+    if (detailSection) {
+      detailSection.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  });
+  setIsDetailLoading(false);
+};
+
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/recipes');
-        
-        if (!response.ok) throw new Error(`Error ${response.status}`);
-        
         const data = await response.json();
         setRecipes(data);
-        setError(null);
+        // Si venimos de Home con una receta preseleccionada
+        if (location.state?.preselectedRecipeId) {
+          const exists = data.some(r => r._id === location.state.preselectedRecipeId);
+          if (exists) {
+            // Encontrar el índice para posicionar el carrusel
+            const index = data.findIndex(r => r._id === location.state.preselectedRecipeId);
+            if (index !== -1) {
+              setActiveIndex(Math.floor(index / 3)); // Asumiendo 3 recetas por slide
+            }
+          }
+        }
       } catch (err) {
-        setError(err.message);
+        console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchRecipes();
-  }, []);
+  }, [location.state]);
 
   // Filtrar y categorizar recetas
   const { filteredRecipes, recipesByCategory } = useMemo(() => {
     const filtered = recipes.filter(recipe => {
-      const matchesCategory = selectedCategory === 'todas' || 
-                            recipe.category === selectedCategory;
+      const matchesCategory = selectedCategory === 'todas' ||
+        recipe.category === selectedCategory;
       const matchesSearch = recipe.name?.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
     });
@@ -56,10 +86,11 @@ const Buscar = () => {
     return { filteredRecipes: filtered, recipesByCategory: byCategory };
   }, [recipes, selectedCategory, searchTerm]);
 
-  // Manejar cambio de categoría
+
   const handleCategoryChange = (categoria) => {
     setSelectedCategory(categoria);
     setActiveIndex(0);
+    setSelectedRecipeId(null); // Resetear selección al cambiar categoría
   };
 
   // Manejar búsqueda
@@ -68,15 +99,45 @@ const Buscar = () => {
     setActiveIndex(0);
   };
 
+  const chunkRecipes = (recipes, size = 2) => {
+    const chunks = [];
+    for (let i = 0; i < recipes.length; i += size) {
+      chunks.push(recipes.slice(i, i + size));
+    }
+    return chunks;
+  };
+
   // Navegación del carrusel
   const currentCategoryRecipes = recipesByCategory[selectedCategory] || [];
-  
+  // Navegación del carrusel
   const handlePrev = () => {
-    setActiveIndex(prev => (prev === 0 ? currentCategoryRecipes.length - 1 : prev - 1));
+    setActiveIndex(prev => {
+      const newIndex = prev === 0 ?
+        Math.ceil(currentCategoryRecipes.length / 2) - 1 :
+        prev - 1;
+      // Forzar reflow para la animación
+      document.querySelector('.carousel-inner').style.animation = 'none';
+      setTimeout(() => {
+        document.querySelector('.carousel-inner').style.animation = '';
+      }, 10);
+      return newIndex;
+    });
+    setSelectedRecipeId(null);
   };
 
   const handleNext = () => {
-    setActiveIndex(prev => (prev === currentCategoryRecipes.length - 1 ? 0 : prev + 1));
+    setActiveIndex(prev => {
+      const newIndex = prev === Math.ceil(currentCategoryRecipes.length / 2) - 1 ?
+        0 :
+        prev + 1;
+      // Forzar reflow para la animación
+      document.querySelector('.carousel-inner').style.animation = 'none';
+      setTimeout(() => {
+        document.querySelector('.carousel-inner').style.animation = '';
+      }, 10);
+      return newIndex;
+    });
+    setSelectedRecipeId(null);
   };
 
   const goToSlide = (index) => {
@@ -146,7 +207,15 @@ const Buscar = () => {
               onClick={() => {
                 if (filteredRecipes.length > 0) {
                   const randomIndex = Math.floor(Math.random() * filteredRecipes.length);
-                  setSelectedRecipe(filteredRecipes[randomIndex]);
+                  setSelectedRecipeId(filteredRecipes[randomIndex]._id); // Usamos el ID en lugar del objeto completo
+
+                  // Opcional: Encontrar el índice en currentCategoryRecipes para posicionar el carrusel
+                  const categoryIndex = currentCategoryRecipes.findIndex(
+                    r => r._id === filteredRecipes[randomIndex]._id
+                  );
+                  if (categoryIndex !== -1) {
+                    setActiveIndex(categoryIndex);
+                  }
                 }
               }}
             >
@@ -169,39 +238,44 @@ const Buscar = () => {
               </button>
             ))}
           </div>
-
           {/* Carrusel */}
           {currentCategoryRecipes.length > 0 ? (
             <>
-              <div id="recipeCarousel" className="carousel slide">
+              <div id="recipeCarousel" className="carousel slide" style={{ minHeight: '400px' }}>
                 <div className="carousel-inner">
-                  {currentCategoryRecipes.map((recipe, index) => (
-                    <div className={`carousel-item ${index === activeIndex ? 'active' : ''}`} key={recipe._id}>
-                      <div className="row justify-content-center g-4">
-                        <div className="col-lg-8">
-                          <RecipeCard
-                            recipe={recipe}
-                            onClick={() => setSelectedRecipe(recipe)}
-                            carouselMode={true}
-                          />
-                        </div>
+                  {chunkRecipes(currentCategoryRecipes, 2).map((recipeGroup, groupIndex) => (
+                    <div
+                      className={`carousel-item ${groupIndex === activeIndex ? 'active' : ''}`}
+                      key={`group-${groupIndex}`}
+                    >
+                      <div className="row mx-0 justify-content-center">
+                        {recipeGroup.map(recipe => (
+                          <div className="col-lg-6 col-md-6 mb-4" key={recipe._id}>
+                            <div className="recipe-card-container">
+                              <RecipeCard
+                                recipe={recipe}
+                                isExpanded={selectedRecipeId === recipe._id}
+                                onViewRecipe={handleViewRecipe} // Pasar la nueva función
+                                carouselMode={true}
+                              />
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {currentCategoryRecipes.length > 1 && (
+                {chunkRecipes(currentCategoryRecipes, 2).length > 1 && (
                   <>
                     <button
-                      className="carousel-control-prev bg-dark bg-opacity-25 rounded-end"
-                      type="button"
+                      className="carousel-control-prev"
                       onClick={handlePrev}
                     >
                       <span className="carousel-control-prev-icon" />
                     </button>
                     <button
-                      className="carousel-control-next bg-dark bg-opacity-25 rounded-start"
-                      type="button"
+                      className="carousel-control-next"
                       onClick={handleNext}
                     >
                       <span className="carousel-control-next-icon" />
@@ -210,19 +284,19 @@ const Buscar = () => {
                 )}
               </div>
 
-              <div className="d-flex justify-content-center mt-4">
-                {currentCategoryRecipes.map((_, index) => (
+              {/* Indicadores */}
+              <div className="d-flex justify-content-center mt-3">
+                {chunkRecipes(currentCategoryRecipes, 2).map((_, index) => (
                   <button
-                    key={index}
-                    type="button"
-                    className={`mx-1 p-0 border-0 bg-${index === activeIndex ? 'dark' : 'secondary'}`}
+                    key={`indicator-${index}`}
+                    className={`mx-2 p-0 border-0 bg-${index === activeIndex ? 'dark' : 'secondary'} rounded-circle`}
                     style={{
-                      width: index === activeIndex ? '20px' : '8px',
-                      height: '8px',
-                      borderRadius: '4px',
+                      width: '10px',
+                      height: '10px',
                       transition: 'all 0.3s ease'
                     }}
                     onClick={() => goToSlide(index)}
+                    aria-label={`Slide ${index + 1}`}
                   />
                 ))}
               </div>
@@ -234,17 +308,27 @@ const Buscar = () => {
           )}
         </section>
 
-        {/* Detalle de receta */}
         {selectedRecipe && (
-          <RecipeDetail
-            recipe={selectedRecipe}
-            onBack={() => setSelectedRecipe(null)}
-          />
+          <section
+            id="recipe-detail-section"
+            className="mt-5 animate__animated animate__fadeIn"
+            style={{ paddingBottom: '100px' }} // Espacio para el footer
+          >
+            <RecipeDetail
+              recipe={selectedRecipe}
+              onBack={() => {
+                setSelectedRecipe(null);
+                setSelectedRecipeId(null);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </section>
         )}
+
       </main>
 
-      <button 
-        id="btn-scroll-top" 
+      <button
+        id="btn-scroll-top"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       >
         ↑

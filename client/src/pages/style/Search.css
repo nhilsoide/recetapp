@@ -265,3 +265,423 @@
 .vh-100 {
   min-height: 100vh;
 }
+/* Transición suave para la card expandida */
+.recipe-selected .card {
+  transition: all 0.3s ease;
+}
+
+.expanded-card {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.card-expanded-content {
+  background-color: #f8f9fa;
+  border-top: 1px solid rgba(0,0,0,0.125);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Estilo para las cards en carrusel */
+.carousel-inner {
+  padding: 20px 0;
+}
+
+/* Efecto al expandir */
+.expanded-card {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+/* Controles del carrusel */
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%;
+  opacity: 1;
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 50%;
+  height: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+  left: 10px;
+}
+
+.carousel-control-next {
+  right: 10px;
+}
+/* Estilo para las cards en carrusel */
+.carousel-inner {
+  padding: 20px 0;
+}
+
+/* Efecto al expandir */
+.expanded-card {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+/* Controles del carrusel */
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%;
+  opacity: 1;
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 50%;
+  height: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+  left: 10px;
+}
+
+.carousel-control-next {
+  right: 10px;
+}
+/* Carrusel mejorado */
+.carousel-inner {
+  padding: 20px 0;
+}
+
+.carousel-item {
+  padding: 0 15px;
+}
+
+.carousel-item.active {
+  display: flex;
+}
+
+.recipe-card-container {
+  padding: 0 10px;
+  margin-bottom: 20px;
+}
+
+/* Controles del carrusel */
+.carousel-control-prev,
+.carousel-control-next {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
+.carousel-control-prev {
+  left: -20px;
+}
+
+.carousel-control-next {
+  right: -20px;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+/* Indicadores */
+.carousel-indicators {
+  position: relative;
+  margin: 20px 0 0;
+}
+
+.carousel-indicators button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+/* Card expandida */
+.expanded-card {
+  z-index: 2;
+  position: relative;
+  transform: scale(1.03);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+/* Ajustes para 2 cards por slide */
+.carousel-inner {
+  padding: 20px 5%;  /* Más espacio a los lados */
+}
+
+.col-lg-6 {
+  padding: 0 15px;  /* Espaciado entre cards */
+}
+
+/* Hacer las cards un poco más grandes */
+.expanded-card {
+  transform: scale(1.05);
+  margin: 0 10px;
+}
+
+/* Controles más visibles */
+.carousel-control-prev {
+  left: -30px;
+}
+
+.carousel-control-next {
+  right: -30px;
+}
+/* Ajustes para el carrusel */
+.carousel {
+  padding: 1rem 0;
+}
+
+.carousel-inner {
+  min-height: 450px; /* Altura mínima para evitar saltos */
+}
+
+.carousel-item {
+  transition: transform 0.6s ease-in-out;
+  padding: 0 15px;
+}
+
+/* Controles de navegación */
+.carousel-control-prev, 
+.carousel-control-next {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+.carousel-control-prev {
+  left: -20px;
+}
+
+.carousel-control-next {
+  right: -20px;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background-color: rgba(0,0,0,0.8);
+}
+
+/* Cards consistentes */
+.recipe-card-container {
+  height: 100%;
+  transition: all 0.3s ease;
+  padding: 0 10px;
+}
+
+.card {
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Efecto al expandir */
+.expanded-card {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 10;
+  margin: 0 5px;
+}
+
+/* Transición suave */
+@keyframes smoothTransition {
+  from { opacity: 0.8; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.carousel-item.active {
+  display: flex;
+  animation: smoothTransition 0.5s ease;
+}
+/* Estilos optimizados para cards consistentes */
+.recipe-card-container {
+  height: 100%;
+  padding: 0 10px;
+  margin-bottom: 20px;
+}
+
+.card {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 12px !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  min-height: 2.5rem;
+}
+
+.card-text {
+  flex-grow: 1;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.card-footer {
+  background: transparent;
+  border-top: none;
+  padding-top: 0;
+}
+
+/* Ajustes para el carrusel */
+.carousel-inner {
+  padding: 20px 0;
+}
+
+.carousel-item {
+  padding: 0 15px;
+}
+
+/* Asegurar igual altura en grupos de cards */
+.carousel-item.active {
+  display: flex;
+}
+
+.carousel-item.active .row {
+  width: 100%;
+}
+
+/* Controles del carrusel más visibles */
+.carousel-control-prev, 
+.carousel-control-next {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(0,0,0,0.7);
+  border-radius: 50%;
+  top: 40%;
+  opacity: 1;
+}
+
+.carousel-control-prev {
+  left: -20px;
+}
+
+.carousel-control-next {
+  right: -20px;
+}
+
+/* Efecto hover para cards */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Ajustes para cards expandidas */
+.expanded-card .card {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.expanded-card .card-img-top {
+  height: 250px;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 992px) {
+  .card-img-top {
+    height: 180px;
+  }
+  
+  .carousel-control-prev {
+    left: 0;
+  }
+  
+  .carousel-control-next {
+    right: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .card-img-top {
+    height: 160px;
+  }
+  
+  .card-title {
+    font-size: 1rem;
+  }
+  
+  .carousel-item {
+    padding: 0 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .recipe-card-container {
+    padding: 0 5px;
+  }
+  
+  .card-img-top {
+    height: 140px;
+  }
+  
+  .carousel-control-prev, 
+  .carousel-control-next {
+    width: 30px;
+    height: 30px;
+  }
+}
+/* Añadir al final del archivo */
+/* Animaciones y transiciones */
+.animate__animated {
+  animation-duration: 0.5s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate__fadeIn {
+  animation-name: fadeIn;
+}
+
+/* Ajustes para la sección de detalles */
+#recipe-detail-section {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  margin-top: 2rem;
+  padding: 2rem 0;
+}
+
+/* Footer fijo mejorado */
+footer {
+  position: relative; /* Cambiar de fixed a relative */
+  margin-top: 2rem;
+  z-index: 100;
+}

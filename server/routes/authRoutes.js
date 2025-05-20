@@ -66,7 +66,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
     // si es admin 
-    const isAdmin = email === 'nhilse5@gmail.com';   
+    const isAdmin = email === 'nhilse5@gmail.com';
     const payload = {
       user: {
         id: user._id,
@@ -80,18 +80,20 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET || 'fallbackSecret',
       { expiresIn: '5d' }
     );
-    
+
 
     // respuesta
     res.json({
       success: true, message: 'Login exitoso', token, isAdmin,
-      user: { id: user._id, email: user.email, nombre: user.nombre
+      user: {
+        id: user._id, email: user.email, nombre: user.nombre
       }
     });
 
   } catch (error) {
     console.error('Error en login:', error);
-    res.status(500).json({ success: false, message: 'Error en el servidor', error: error.message
+    res.status(500).json({
+      success: false, message: 'Error en el servidor', error: error.message
     });
   }
 });
@@ -130,6 +132,68 @@ router.post('/forgot-password', async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Error del servidor');
+  }
+});
+
+// @route   PUT /api/auth/profile
+// @desc    Actualizar perfil de usuario
+router.put('/profile', auth, async (req, res) => {
+  const { nombre, email } = req.body;
+
+  try {
+    // Verificar si el nuevo email ya existe (si se está cambiando)
+    if (email && email !== req.user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ msg: 'El email ya está en uso' });
+      }
+    }
+
+    // Actualizar usuario
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        nombre: nombre || req.user.nombre,
+        email: email || req.user.email
+      },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+
+    // Generar nuevo token si el email cambió
+    if (email && email !== req.user.email) {
+      const payload = {
+        user: {
+          id: user.id,
+          email: user.email,
+          isAdmin: req.user.isAdmin
+        }
+      };
+
+      const token = jwt.sign(
+        payload,
+        process.env.JWT_SECRET,
+        { expiresIn: '5d' }
+      );
+
+      return res.json({
+        user,
+        token,
+        msg: 'Perfil actualizado. Tu sesión ha sido renovada.'
+      });
+    }
+
+    res.json({
+      user,
+      msg: 'Perfil actualizado correctamente'
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error en el servidor');
   }
 });
 

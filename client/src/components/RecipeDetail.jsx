@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const RecipeDetail = ({ recipe, onBack }) => {
+
   return (
     <section className="receta-detalle mt-5 p-4 bg-white rounded shadow-lg" id="receta-detalle">
       <div className="row">

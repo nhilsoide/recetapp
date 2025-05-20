@@ -162,6 +162,14 @@ exports.getRecipes = async (req, res) => {
   try {
     const { category, difficulty, time, search } = req.query;
     const query = {};
+    const limit = parseInt(req.query.limit) || 10; // Si no viene limit, muestra 10
+    const sort = req.query.sort || '-createdAt';
+
+     // Construir objeto de consulta
+    const queryOptions = {
+      limit: limit,
+      sort: sort
+    };
 
     // Filtros básicos
     if (category) query.category = category;
@@ -187,7 +195,8 @@ exports.getRecipes = async (req, res) => {
     }
 
     const recipes = await Recipe.find(query)
-      .populate('author', 'nombre')
+      .sort(queryOptions.sort)
+      .limit(queryOptions.limit)
       .populate({
         path: 'ingredients',
         populate: {

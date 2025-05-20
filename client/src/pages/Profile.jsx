@@ -11,6 +11,53 @@ const Perfil = () => {
   const navigate = useNavigate();
   const userFromStorage = localStorage.getItem('user');
   const userData = userFromStorage ? JSON.parse(userFromStorage) : null;
+  const [groupedIngredients, setGroupedIngredients] = useState({});
+  const [showIngredientDropdown, setShowIngredientDropdown] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editedUser, setEditedUser] = useState({
+    nombre: userData?.nombre || '',
+    email: userData?.email || '',
+    // Agrega otros campos que quieras editar
+  });
+
+  const handleUpdateProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editedUser)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Error al actualizar el perfil');
+      }
+
+      // Actualizar localStorage si el token cambió
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+
+      // Actualizar datos del usuario
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Mostrar mensaje de éxito
+      alert(data.msg || 'Perfil actualizado correctamente');
+      setEditMode(false);
+
+      // Forzar recarga para actualizar datos
+      window.location.reload();
+
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error);
+      alert(error.message);
+    }
+  };
 
   // Datos de ejemplo
   const favoriteRecipes = [
@@ -78,8 +125,22 @@ const Perfil = () => {
         }
 
         const data = await response.json();
-        console.log('Ingredientes cargados:', data); // Para debug
-        setAvailableIngredients(data);
+
+        // Ordenar y agrupar por categoría
+        const grouped = data
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .reduce((acc, ingredient) => {
+            const category = ingredient.category || 'otros';
+            if (!acc[category]) {
+              acc[category] = [];
+            }
+            acc[category].push(ingredient);
+            return acc;
+          }, {});
+
+        setGroupedIngredients(grouped);
+        setAvailableIngredients(data); // Mantén esto para otros usos
+
       } catch (error) {
         console.error('Error fetching ingredients:', error);
         alert('Error al cargar ingredientes: ' + error.message);
@@ -88,6 +149,25 @@ const Perfil = () => {
 
     fetchIngredients();
   }, []);
+
+  // Agrega este useEffect al componente
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const dropdown = document.querySelector('.ingredient-dropdown');
+      const toggle = document.querySelector('.ingredient-dropdown-toggle');
+
+      if (showIngredientDropdown &&
+        !dropdown?.contains(event.target) &&
+        !toggle?.contains(event.target)) {
+        setShowIngredientDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showIngredientDropdown]);
 
   const handleIngredientAdd = () => {
     if (!ingredientInput.ingredient || !ingredientInput.quantity) {
@@ -145,8 +225,11 @@ const Perfil = () => {
 
       const createdIngredient = await response.json();
 
-      // Actualiza la lista de ingredientes disponibles
-      setAvailableIngredients([...availableIngredients, createdIngredient]);
+      // Actualiza la lista de ingredientes disponibles y ordena
+      const updatedIngredients = [...availableIngredients, createdIngredient]
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setAvailableIngredients(updatedIngredients);
 
       // Selecciona automáticamente el nuevo ingrediente
       setIngredientInput({
@@ -245,16 +328,6 @@ const Perfil = () => {
     }
   };
 
-
-  const handleRecipeChange = (e) => {
-    const { name, value } = e.target;
-    setNewRecipe(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-
   // Efecto para el botón de scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -326,9 +399,65 @@ const Perfil = () => {
 
         <section className="profile-section">
           <h2>Cocina de {userData.nombre}</h2>
-          {/* <p><strong>Nombre:</strong> {userData.name}</p> */}
-          <p>{userData.email}</p>
-          <button className="btn btn-custom">Editar Perfil</button>
+
+          {editMode ? (
+            <div className="edit-profile-form">
+              <div className="form-group">
+                <label>Nombre</label>
+                <input
+                  type="text"
+                  value={editedUser.nombre}
+                  onChange={(e) => setEditedUser({ ...editedUser, nombre: e.target.value })}
+                  className="form-control"
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={editedUser.email}
+                  onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                  className="form-control"
+                />
+              </div>
+              <div className="button-group">
+                <button
+                  onClick={handleUpdateProfile}
+                  className="btn btn-custom"
+                >
+                  Guardar Cambios
+                </button>
+                <button
+                  onClick={() => {
+                    setEditMode(false);
+                    setEditedUser({
+                      nombre: userData.nombre,
+                      email: userData.email
+                    });
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p>{userData.email}</p>
+              <button
+                onClick={() => {
+                  setEditedUser({
+                    nombre: userData.nombre,
+                    email: userData.email
+                  });
+                  setEditMode(true);
+                }}
+                className="btn btn-custom"
+              >
+                Editar Perfil
+              </button>
+            </>
+          )}
 
           {/* Carrusel de Recetas Favoritas */}
           <div className="favorite-recipes">
@@ -507,29 +636,61 @@ const Perfil = () => {
 
                 {/* Formulario para agregar nuevo ingrediente */}
                 <div className="add-ingredient-form">
-                  <div className="row">
-                    <div className="col-md-5">
-                      <select
-                        value={ingredientInput.ingredient}
-                        onChange={(e) => {
-                          if (e.target.value === 'new') {
-                            setShowIngredientModal(true);
-                          } else {
-                            setIngredientInput({ ...ingredientInput, ingredient: e.target.value });
-                          }
-                        }}
-                        className="form-control"
-                      >
-                        <option value="">Seleccionar ingrediente</option>
-                        {availableIngredients.map(ing => (
-                          <option key={ing._id} value={ing._id}>
-                            {ing.name} ({ing.unit})
-                          </option>
-                        ))}
-                        <option value="new">➕ Crear nuevo ingrediente</option>
-                      </select>
+                  <div className="row align-items-center">
+                    <div className="col-md-5 mb-2 mb-md-0">
+                      <div className="ingredient-selector-container">
+                        <div
+                          className="ingredient-dropdown-toggle form-control"
+                          onClick={() => setShowIngredientDropdown(!showIngredientDropdown)}
+                        >
+                          <span>
+                            {ingredientInput.ingredient
+                              ? availableIngredients.find(ing => ing._id === ingredientInput.ingredient)?.name || "Seleccionar ingrediente"
+                              : "Seleccionar ingrediente"}
+                          </span>
+                          <span className="dropdown-arrow">▼</span>
+                        </div>
+
+                        {showIngredientDropdown && (
+                          <div className="ingredient-dropdown">
+                            <div
+                              className="dropdown-item new-ingredient"
+                              onClick={() => {
+                                setShowIngredientModal(true);
+                                setShowIngredientDropdown(false);
+                              }}
+                            >
+                              <span>➕ Crear nuevo ingrediente</span>
+                            </div>
+
+                            {Object.entries(groupedIngredients).map(([category, ingredients]) => (
+                              <div key={category} className="ingredient-category-group">
+                                <div className="category-header">
+                                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                                </div>
+                                {ingredients.map(ing => (
+                                  <div
+                                    key={ing._id}
+                                    className={`dropdown-item ${ingredientInput.ingredient === ing._id ? 'selected' : ''}`}
+                                    onClick={() => {
+                                      setIngredientInput({
+                                        ...ingredientInput,
+                                        ingredient: ing._id
+                                      });
+                                      setShowIngredientDropdown(false);
+                                    }}
+                                  >
+                                    <span>{ing.name}</span>
+                                    <span className="unit">({ing.unit})</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-3 mb-2 mb-md-0">
                       <input
                         type="number"
                         placeholder="Cantidad"
@@ -541,7 +702,7 @@ const Perfil = () => {
                         className="form-control"
                       />
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-3 mb-2 mb-md-0">
                       <input
                         type="text"
                         placeholder="Notas (opcional)"
@@ -556,7 +717,7 @@ const Perfil = () => {
                     <div className="col-md-1">
                       <button
                         onClick={handleIngredientAdd}
-                        className="btn btn-success"
+                        className="btn btn-success w-100"
                       >
                         +
                       </button>

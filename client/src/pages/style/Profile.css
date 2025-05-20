@@ -453,3 +453,256 @@ main {
   gap: 1rem;
   margin-top: 1.5rem;
 }
+/* Estilos para el selector de ingredientes */
+.ingredient-selector {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.ingredient-category {
+  margin-bottom: 15px;
+}
+
+.category-title {
+  background-color: #f5f5f5;
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.category-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ingredient-item {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.ingredient-item:hover {
+  background-color: #f0f0f0;
+}
+
+.ingredient-item.selected {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.btn-new-ingredient {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  background-color: transparent;
+  border: 1px dashed #aaa;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-new-ingredient:hover {
+  background-color: #f5f5f5;
+}
+/* Estilos para el selector de ingredientes */
+.ingredient-selector-container {
+  position: relative;
+  width: 100%;
+}
+
+.ingredient-dropdown-toggle {
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.ingredient-dropdown-toggle:hover {
+  border-color: #86b7fe;
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.ingredient-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000;
+  margin-top: 2px;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.selected {
+  background-color: #e2f0fd;
+  color: #0d6efd;
+}
+
+.unit {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.ingredient-category-group {
+  border-bottom: 1px solid #eee;
+}
+
+.category-header {
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #495057;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.new-ingredient {
+  color: #0d6efd;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.new-ingredient:hover {
+  background-color: #e7f1ff;
+}
+
+/* Asegurar que el contenedor del formulario tenga espacio */
+.add-ingredient-form {
+  margin-bottom: 20px;
+}
+
+/* Estilos para la lista de ingredientes agregados */
+.ingredients-list {
+  margin-bottom: 15px;
+}
+
+.ingredient-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.ingredient-info {
+  flex-grow: 1;
+}
+
+.ingredient-name {
+  margin-right: 8px;
+}
+
+.ingredient-notes {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+/* Estilos para el formulario de edición de perfil */
+.edit-profile-form {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.edit-profile-form .form-group {
+  margin-bottom: 15px;
+}
+
+.edit-profile-form .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.edit-profile-form .form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.button-group .btn {
+  flex: 1;
+}
+/* Estilos para el formulario de edición de perfil */
+.edit-profile-form {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.edit-profile-form .form-group {
+  margin-bottom: 15px;
+}
+
+.edit-profile-form .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.edit-profile-form .form-control {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.button-group .btn {
+  flex: 1;
+}
