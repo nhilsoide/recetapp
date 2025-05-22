@@ -16,7 +16,7 @@ const RecipeSchema = new mongoose.Schema({
     type: [String],
     required: [true, 'Las instrucciones son requeridas'],
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return v.length > 0;
       },
       message: 'Debe haber al menos una instrucción'
@@ -59,6 +59,10 @@ const RecipeSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  favoritesCount: {
+    type: Number,
+    default: 0
   }
 }, {
   versionKey: false,
@@ -67,7 +71,7 @@ const RecipeSchema = new mongoose.Schema({
 });
 
 // Middleware para actualizar la fecha de modificación
-RecipeSchema.pre('save', function(next) {
+RecipeSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
@@ -81,7 +85,7 @@ RecipeSchema.virtual('ingredients', {
 });
 
 // Query helper para recetas activas
-RecipeSchema.query.active = function() {
+RecipeSchema.query.active = function () {
   return this.where({ isActive: true });
 };
 

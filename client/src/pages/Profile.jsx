@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Carousel } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faPlus, faChevronLeft, faChevronRight, faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faPlus, faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 import './style/Profile.css';
-
+import RecipeCard from '../components/RecipeCard';
 
 const Perfil = () => {
   const navigate = useNavigate();
@@ -17,8 +17,67 @@ const Perfil = () => {
   const [editedUser, setEditedUser] = useState({
     nombre: userData?.nombre || '',
     email: userData?.email || '',
-    // Agrega otros campos que quieras editar
   });
+
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [newRecipe, setNewRecipe] = useState({
+    name: '',
+    description: '',
+    instructions: [''],
+    category: '',
+    preparationTime: '',
+    difficulty: '',
+    ingredients: [],
+    image: null
+  });
+
+  const [showIngredientModal, setShowIngredientModal] = useState(false);
+  const [ingredientInput, setIngredientInput] = useState({
+    ingredient: '',
+    quantity: '',
+    notes: ''
+  });
+  const [availableIngredients, setAvailableIngredients] = useState([]);
+  const [newIngredient, setNewIngredient] = useState({
+    name: '',
+    unit: 'unidad',
+    category: 'otros'
+  });
+
+  // Función para ver receta
+  const handleViewRecipe = (recipe) => {
+    navigate('/buscar', {
+      state: {
+        preselectedRecipe: recipe,
+        scrollToRecipe: true
+      }
+    });
+  };
+
+  // Cargar favoritos
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch('http://localhost:5000/api/favorites/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Error al cargar favoritos');
+        const data = await response.json();
+        setFavoriteRecipes(data);
+      } catch (err) {
+        console.error('Error fetching favorites:', err);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+
 
   const handleUpdateProfile = async () => {
     try {
@@ -58,61 +117,6 @@ const Perfil = () => {
       alert(error.message);
     }
   };
-
-  // Datos de ejemplo
-  const favoriteRecipes = [
-    {
-      id: 1,
-      name: 'Tarta de Manzana',
-      image: '/img/tarta-de-manzana.jpg',
-      description: 'Una deliciosa tarta de manzana con un toque de canela.'
-    },
-    {
-      id: 2,
-      name: 'Pasta al Pesto',
-      image: '/img/pasta.jpg',
-      description: 'Receta tradicional italiana con albahaca fresca y queso parmesano.'
-    },
-    {
-      id: 3,
-      name: 'Pan Casero',
-      image: '/img/pan.jpg',
-      description: 'Aprende a hacer pan casero con pocos ingredientes.'
-    },
-    {
-      id: 4,
-      name: 'Ensalada de Quinoa',
-      image: '/img/ensalada.jpg',
-      description: 'Una ensalada saludable con quinoa y vegetales frescos.'
-    }
-  ];
-
-  const [newRecipe, setNewRecipe] = useState({
-    name: '',
-    description: '',
-    instructions: [''],
-    category: '',
-    preparationTime: '',
-    difficulty: '',
-    ingredients: [],
-    image: null // Nuevo campo para la imagen
-  });
-
-  const [showIngredientModal, setShowIngredientModal] = useState(false);
-
-  const [ingredientInput, setIngredientInput] = useState({
-    ingredient: '',
-    quantity: '',
-    notes: ''
-  });
-
-  const [availableIngredients, setAvailableIngredients] = useState([]);
-
-  const [newIngredient, setNewIngredient] = useState({
-    name: '',
-    unit: 'unidad',
-    category: 'otros' // Valor por defecto
-  });
 
   // Cargar ingredientes disponibles al montar el componente
   useEffect(() => {
@@ -168,6 +172,31 @@ const Perfil = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showIngredientDropdown]);
+
+  // En Profile.jsx, modificar para cargar recetas favoritas del usuario
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch('http://localhost:5000/api/favorites/user', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Error al cargar favoritos');
+        const data = await response.json();
+        setFavoriteRecipes(data);
+      } catch (err) {
+        console.error('Error fetching favorites:', err);
+      }
+    };
+
+    fetchFavorites();
+  }, []);
+
 
   const handleIngredientAdd = () => {
     if (!ingredientInput.ingredient || !ingredientInput.quantity) {
@@ -328,7 +357,6 @@ const Perfil = () => {
     }
   };
 
-  // Efecto para el botón de scroll
   useEffect(() => {
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");
@@ -342,20 +370,6 @@ const Perfil = () => {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Estilos personalizados para el carrusel
-  const carouselStyle = {
-    maxWidth: '800px',
-    margin: '0 auto',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-  };
-
-  const carouselItemStyle = {
-    height: '400px',
-    backgroundColor: '#f8f2e7'
   };
 
   return (
@@ -399,7 +413,6 @@ const Perfil = () => {
 
         <section className="profile-section">
           <h2>Cocina de {userData.nombre}</h2>
-
           {editMode ? (
             <div className="edit-profile-form">
               <div className="form-group">
@@ -460,43 +473,29 @@ const Perfil = () => {
           )}
 
           {/* Carrusel de Recetas Favoritas */}
-          <div className="favorite-recipes">
-            <h3><FontAwesomeIcon icon={faHeart} /> Recetas Favoritas</h3>
+          <div className="favorite-recipes-section">
+            <h3 className="mb-4">
+              <FontAwesomeIcon icon={faHeart} className="me-2" />
+              Tus Recetas Favoritas
+            </h3>
 
-            <div style={carouselStyle}>
-              <Carousel
-                prevIcon={<FontAwesomeIcon icon={faChevronLeft} size="2x" color="#000" />}
-                nextIcon={<FontAwesomeIcon icon={faChevronRight} size="2x" color="#000" />}
-                indicators={false}
-              >
+            {favoriteRecipes.length > 0 ? (
+              <div className="row">
                 {favoriteRecipes.map(recipe => (
-                  <Carousel.Item key={recipe.id} style={carouselItemStyle}>
-                    <div className="d-flex h-100">
-                      <div className="w-50 h-100">
-                        <img
-                          className="d-block h-100 w-100 object-fit-cover"
-                          src={recipe.image}
-                          alt={recipe.name}
-                        />
-                      </div>
-                      <div className="w-50 p-4 d-flex flex-column justify-content-center">
-                        <h3 className="text-center mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-                          {recipe.name}
-                        </h3>
-                        <p className="text-center">{recipe.description}</p>
-                        <button
-                          className="btn btn-custom align-self-center mt-3"
-                          style={{ width: 'fit-content' }}
-                        >
-                          Ver Receta
-                        </button>
-                      </div>
-                    </div>
-                  </Carousel.Item>
+                  <RecipeCard
+                    key={recipe._id}
+                    recipe={recipe}
+                    onViewRecipe={handleViewRecipe}
+                  />
                 ))}
-              </Carousel>
-            </div>
+              </div>
+            ) : (
+              <div className="alert alert-info">
+                Aún no tienes recetas favoritas. ¡Empieza a guardar tus favoritas!
+              </div>
+            )}
           </div>
+
           {/* Formulario de Nueva Receta */}
           <div className="nueva-receta-section">
             <h3><FontAwesomeIcon icon={faPlus} /> Registrar Nueva Receta</h3>

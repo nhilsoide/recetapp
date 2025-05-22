@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const cors = require('cors');
 const path = require('path');
 const recipeRoutes = require('./routes/recipeRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 // Inicializar app
 const app = express();
 
@@ -36,6 +37,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rutas de recetas
 app.use('/api/recipes', recipeRoutes);
+
+
+app.use('/api/favorites', favoriteRoutes); 
 
 // Manejo de errores
 app.use((err, req, res, next) => {

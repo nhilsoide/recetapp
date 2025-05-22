@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [recentRecipes, setRecentRecipes] = useState([]);
+  const [popularRecipes, setPopularRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,7 +42,21 @@ function Home() {
       }
     };
 
-    fetchRecentRecipes();
+    // Función para obtener recetas populares
+     const fetchPopularRecipes = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/favorites/popular?limit=4');
+      if (!response.ok) throw new Error('Error al cargar recetas populares');
+      const data = await response.json();
+      setPopularRecipes(data);
+    } catch (err) {
+      console.error('Error fetching popular recipes:', err);
+      setError(err.message);
+    }
+  };
+
+  fetchRecentRecipes();
+  fetchPopularRecipes();
 
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");
@@ -102,28 +117,42 @@ function Home() {
         {/* Carrusel de recetas Populares */}
         <section>
           <h2>Populares</h2>
-          <div id="carouselRecetas" className="carousel slide" data-bs-ride="carousel">
-            <div className="carousel-inner">
-              <div className="carousel-item active">
-                <img src="/img/c1.jpg" className="d-block w-100" alt="Tarta de manzana" />
-              </div>
-              <div className="carousel-item">
-                <img src="/img/c2.jpg" className="d-block w-100" alt="Pasta al pesto" />
-              </div>
-              <div className="carousel-item">
-                <img src="/img/c3.jpg" className="d-block w-100" alt="Pan casero" />
-              </div>
-              <div className="carousel-item">
-                <img src="/img/c4.jpg" className="d-block w-100" alt="Ensalada de quinoa" />
+          {loading ? (
+            <div className="text-center">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Cargando...</span>
               </div>
             </div>
-            <button className="carousel-control-prev" type="button" data-bs-target="#carouselRecetas" data-bs-slide="prev">
-              <span className="carousel-control-prev-icon"></span>
-            </button>
-            <button className="carousel-control-next" type="button" data-bs-target="#carouselRecetas" data-bs-slide="next">
-              <span className="carousel-control-next-icon"></span>
-            </button>
-          </div>
+          ) : error ? (
+            <div className="alert alert-danger">Error al cargar recetas populares: {error}</div>
+          ) : popularRecipes.length === 0 ? (
+            <div className="alert alert-info">No hay recetas populares para mostrar</div>
+          ) : (
+            <div id="carouselRecetas" className="carousel slide" data-bs-ride="carousel">
+              <div className="carousel-inner">
+                {popularRecipes.map((recipe, index) => (
+                  <div key={recipe._id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
+                    <img
+                      src={'http://localhost:5000'+recipe.imageUrl || '/img/default-recipe.jpg'}
+                      className="d-block w-100 carousel-image"
+                      alt={recipe.name}
+                      style={{ height: '400px', objectFit: 'cover' }}
+                    />
+                    <div className="carousel-caption d-none d-md-block">
+                      <h5>{recipe.name}</h5>
+                      <p>⭐ {recipe.favoritesCount || 0} favoritos</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button className="carousel-control-prev" type="button" data-bs-target="#carouselRecetas" data-bs-slide="prev">
+                <span className="carousel-control-prev-icon"></span>
+              </button>
+              <button className="carousel-control-next" type="button" data-bs-target="#carouselRecetas" data-bs-slide="next">
+                <span className="carousel-control-next-icon"></span>
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Sección de recetas recientes */}

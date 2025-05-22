@@ -1,8 +1,62 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './style/RecipeCard.css';
+import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 
 const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false, onViewRecipe }) => {
+
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Verificar si es favorito al cargar
+  useEffect(() => {
+    const checkFavorite = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/favorites/check/${recipe._id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsFavorite(data.isFavorite);
+        }
+      } catch (error) {
+        console.error("Error checking favorite:", error);
+      }
+    };
+
+    if (isAuthenticated) {
+      checkFavorite();
+    }
+  }, [recipe._id, isAuthenticated]);
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem('token'));
+  }, []);
+
+  const toggleFavorite = async () => {
+    if (!isAuthenticated) {
+      alert('Por favor inicia sesión para guardar favoritos');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/favorites/${recipe._id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      setIsFavorite(data.isFavorite);
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
 
   return (
     <div className={`${carouselMode ? '' : 'col-md-4 mb-4'}`}>
@@ -20,6 +74,12 @@ const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false,
               borderTopRightRadius: 'calc(0.25rem - 1px)'
             }}
           />
+          <button onClick={toggleFavorite} className="favorite-btn">
+            <FontAwesomeIcon
+              icon={isFavorite ? solidHeart : regularHeart}
+              color={isFavorite ? "red" : "gray"}
+            />
+          </button>
           <div className="position-absolute top-0 start-0 p-2">
             <span className="badge bg-dark">{recipe.difficulty}</span>
           </div>
@@ -78,7 +138,7 @@ const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false,
               e.preventDefault();
               e.stopPropagation();
               if (onViewRecipe) {
-                onViewRecipe(recipe); // Usar onViewRecipe si está disponible
+                onViewRecipe(recipe);
               } else if (onClick) {
                 onClick(recipe);
               }

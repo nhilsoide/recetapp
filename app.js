@@ -12,9 +12,3 @@ app.use(bodyParser.json());
 app.get('/api/mensaje', (req, res) => {
   res.json({ mensaje: 'Hola desde el backend!' });
 });
-
-// Iniciar servidor
-// const PORT = 5000;
-// app.listen(PORT, () => {
-//   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-// });

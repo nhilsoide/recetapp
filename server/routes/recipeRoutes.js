@@ -17,4 +17,5 @@ router.get('/mensaje', (req, res) => {
 
 router.post('/', auth, upload.single('image'), recipeController.createRecipe);
 
+
 module.exports = router;

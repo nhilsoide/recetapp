@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Search.css';
 import RecipeCard from '../components/RecipeCard';
+import RecipeDetail from '../components/RecipeDetail';
 import Spinner from '../components/Spinner';
 import { useLocation } from 'react-router-dom';
+
 
 const Buscar = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -119,30 +121,38 @@ const Buscar = () => {
   const currentCategoryRecipes = recipesByCategory[selectedCategory] || [];
 
   const handlePrev = () => {
-    setActiveIndex(prev => {
-      const newIndex = prev === 0 ?
-        Math.ceil(currentCategoryRecipes.length / 2) - 1 :
-        prev - 1;
-      document.querySelector('.carousel-inner').style.animation = 'none';
+  setActiveIndex(prev => {
+    const newIndex = prev === 0 ?
+      Math.ceil(currentCategoryRecipes.length / 2) - 1 :
+      prev - 1;
+    
+    const carouselInner = document.querySelector('.carousel-inner');
+    if (carouselInner) {
+      carouselInner.style.animation = 'none';
       setTimeout(() => {
-        document.querySelector('.carousel-inner').style.animation = '';
+        carouselInner.style.animation = '';
       }, 10);
-      return newIndex;
-    });
-  };
+    }
+    return newIndex;
+  });
+};
 
   const handleNext = () => {
-    setActiveIndex(prev => {
-      const newIndex = prev === Math.ceil(currentCategoryRecipes.length / 2) - 1 ?
-        0 :
-        prev + 1;
-      document.querySelector('.carousel-inner').style.animation = 'none';
+  setActiveIndex(prev => {
+    const newIndex = prev === Math.ceil(currentCategoryRecipes.length / 2) - 1 ?
+      0 :
+      prev + 1;
+    
+    const carouselInner = document.querySelector('.carousel-inner');
+    if (carouselInner) {
+      carouselInner.style.animation = 'none';
       setTimeout(() => {
-        document.querySelector('.carousel-inner').style.animation = '';
+        carouselInner.style.animation = '';
       }, 10);
-      return newIndex;
-    });
-  };
+    }
+    return newIndex;
+  });
+};
 
   const goToSlide = (index) => {
     setActiveIndex(index);
@@ -296,67 +306,13 @@ const Buscar = () => {
         </section>
 
         {selectedRecipe && (
-          <section
-            id="recipe-detail-section"
-            className="animate__animated animate__fadeInUp"
-          >
-            <div className="detail-header">
-              <div className="container">
-                <h2>{selectedRecipe.name}</h2>
-                <p>{selectedRecipe.description}</p>
-              </div>
-            </div>
-            <div className="detail-content">
-              <div className="container">
-                <div className="row">
-                  <div className="col-lg-6 mb-4">
-                    <div className="detail-image">
-                      <img
-                        src={selectedRecipe.imageUrl ? `http://localhost:5000${selectedRecipe.imageUrl}` : '/default-recipe.jpg'}
-                        alt={selectedRecipe.name}
-                        className="img-fluid"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-lg-6">
-                    <div className="ingredients-list">
-                      <h3>Ingredientes</h3>
-                      <ul>
-                        {selectedRecipe.ingredients.map((ing, index) => (
-                          <li key={ing._id || index}>
-                            {ing.quantity && `${ing.quantity} `}
-                            {ing.ingredient?.unit && ` ${ing.ingredient.unit}`} {/* Unidad dentro de ingredient */}
-                            {ing.ingredient?.name} {/* Accedemos al name dentro de ingredient */}
-                            
-                            {ing.notes && ` (${ing.notes})`} {/* Notas es propiedad directa */}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="instructions-list mt-4">
-                  <h3>Preparación</h3>
-                  <ol>
-                    {selectedRecipe.instructions.map((step, index) => (
-                      <li key={index}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-
-                <button
-                  className="btn btn-custom back-button"
-                  onClick={() => {
-                    setSelectedRecipe(null);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                >
-                  <i className="bi bi-arrow-left me-2"></i> Volver a las recetas
-                </button>
-              </div>
-            </div>
-          </section>
+          <RecipeDetail
+            recipe={selectedRecipe}
+            onBack={() => {
+              setSelectedRecipe(null);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
         )}
       </main>
 

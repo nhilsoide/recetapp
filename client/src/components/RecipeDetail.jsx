@@ -1,91 +1,84 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import './style/RecipeCard.css';
 
 const RecipeDetail = ({ recipe, onBack }) => {
-
   return (
-    <section className="receta-detalle mt-5 p-4 bg-white rounded shadow-lg" id="receta-detalle">
-      <div className="row">
-        {/* Columna de imagen */}
-        <div className="col-md-5 mb-4 mb-md-0">
-          <img
-            src={recipe.imageUrl || '/img/default-recipe.jpg'}
-            alt={recipe.name}
-            className="img-fluid rounded shadow"
-            style={{ maxHeight: '400px', width: '100%', objectFit: 'cover' }}
-          />
-          <div className="d-flex justify-content-between mt-3">
-            <span className="badge bg-secondary py-2 px-3">
-              ⏱️ {recipe.preparationTime} min
-            </span>
-            <span className="badge bg-secondary py-2 px-3">
-              🏋️ Dificultad: {recipe.difficulty}
-            </span>
-            <span className="badge bg-secondary py-2 px-3">
-              🍽️ {recipe.category}
-            </span>
+    <section id="recipe-detail-section" className="mb-5">
+      <div className="detail-header bg-white p-4 border-bottom">
+        <h2 className="mb-3">{recipe.name}</h2>
+        <p className="lead">{recipe.description}</p>
+      </div>
+
+      <div className="detail-content bg-white p-4">
+        <div className="row">
+          {/* Columna de imagen */}
+          <div className="col-lg-6 mb-4">
+            <div className="detail-image">
+              <img
+                src={recipe.imageUrl ? `http://localhost:5000${recipe.imageUrl}` : '/default-recipe.jpg'}
+                alt={recipe.name}
+                className="img-fluid rounded shadow"
+              />
+              <div className="d-flex justify-content-between mt-3">
+                <span className="badge bg-secondary py-2 px-3">
+                  ⏱️ {recipe.preparationTime} min
+                </span>
+                <span className="badge bg-secondary py-2 px-3">
+                  🏋️ {recipe.difficulty}
+                </span>
+                <span className="badge bg-secondary py-2 px-3">
+                  🍽️ {recipe.category}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Columna de ingredientes */}
+          <div className="col-lg-6">
+            <div className="ingredients-list mb-4">
+              <h3 className="mb-3">Ingredientes</h3>
+              <ul className="list-group list-group-flush">
+                {recipe.ingredients.map((ing, index) => (
+                  <li key={ing._id || index}>
+                    {ing.quantity && `${ing.quantity} `}
+                    {ing.ingredient?.unit && ` ${ing.ingredient.unit}`} {/* Unidad dentro de ingredient */}
+                    {ing.ingredient?.name} {/* Accedemos al name dentro de ingredient */}
+
+                    {ing.notes && ` (${ing.notes})`} {/* Notas es propiedad directa */}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
-        {/* Columna de contenido */}
-        <div className="col-md-7">
-          <h2 className="mb-3">{recipe.name}</h2>
-          <p className="lead">{recipe.description}</p>
+        {/* Instrucciones */}
+        <div className="instructions-list mt-4">
+          <h3 className="mb-3">Preparación</h3>
+          <ol className="list-group list-group-numbered list-group-flush">
+            {recipe.instructions.map((instruction, index) => (
+              <li key={index} className="list-group-item">
+                {instruction}
+              </li>
+            ))}
+          </ol>
+        </div>
 
-          <div className="row mt-4">
-            {/* Ingredientes */}
-            <div className="col-md-6">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-header bg-custom text-white">
-                  <h5 className="mb-0">Ingredientes</h5>
-                </div>
-                <div className="card-body">
-                  <ul className="list-group list-group-flush">
-                    {recipe.ingredients.map((ingredient, index) => (
-                      <li key={index} className="list-group-item d-flex align-items-center">
-                        <span className="me-2">•</span>
-                        {ingredient.name} - {ingredient.quantity} {ingredient.unit}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Instrucciones */}
-            <div className="col-md-6 mt-3 mt-md-0">
-              <div className="card h-100 border-0 shadow-sm">
-                <div className="card-header bg-custom text-white">
-                  <h5 className="mb-0">Instrucciones</h5>
-                </div>
-                <div className="card-body">
-                  <ol className="list-group list-group-numbered list-group-flush">
-                    {recipe.instructions.map((instruction, index) => (
-                      <li key={index} className="list-group-item">
-                        {instruction}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="d-flex gap-3 mt-4">
-            <button
-              className="btn btn-custom flex-grow-1 py-2"
-              onClick={() => alert("Receta añadida a favoritos")}
-            >
-              ♥ Añadir a Favoritos
-            </button>
-            <button
-              className="btn btn-outline-custom flex-grow-1 py-2"
-              onClick={onBack}
-            >
-              Volver a la lista
-            </button>
-          </div>
+        {/* Botones */}
+        <div className="d-flex gap-3 mt-4">
+          <button
+            className="btn btn-custom flex-grow-1 py-2"
+            onClick={() => alert("Receta añadida a favoritos")}
+          >
+            ♥ Añadir a Favoritos
+          </button>
+          <button
+            className="btn btn-outline-custom flex-grow-1 py-2"
+            onClick={onBack}
+          >
+            Volver
+          </button>
         </div>
       </div>
     </section>
