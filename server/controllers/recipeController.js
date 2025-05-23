@@ -6,7 +6,7 @@ const Ingredient = require('../models/Ingredient');
 const multer = require('multer');
 const path = require('path');
 
-// Configuración de Multer (puedes extraer esto a otro archivo si lo prefieres)
+// Configuración de Multer
 const upload = multer({
   dest: 'uploads/',
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
@@ -370,4 +370,47 @@ exports.toggleRecipeStatus = async (req, res) => {
   }
 };
 
+// =======================================
+// Obtener recetas por ingrediente
+// =======================================
+exports.searchByIngredient = async (req, res) => {
+  try {
+    const { ingredient } = req.query;
 
+    if (!ingredient) {
+      return res.status(400).json({ error: 'Debes proporcionar un ingrediente' });
+    }
+
+    // Buscar el ingrediente por nombre (insensible a mayúsculas)
+    const ingredientDoc = await Ingredient.findOne({
+      name: { $regex: ingredient, $options: 'i' }
+    });
+
+    if (!ingredientDoc) {
+      return res.json([]);
+    }
+
+    // Buscar recetas que contengan este ingrediente
+    const recipes = await Recipe.find({ isActive: true })
+      .populate({
+        path: 'ingredients',
+        match: { ingredient: ingredientDoc._id },
+        populate: {
+          path: 'ingredient',
+          model: 'Ingredient'
+        }
+      })
+      .populate('author', 'nombre')
+      .exec();
+
+    // Filtrar recetas que realmente tienen el ingrediente (puede haber algunas con array vacío por el match)
+    const filteredRecipes = recipes.filter(recipe =>
+      recipe.ingredients && recipe.ingredients.length > 0
+    );
+
+    res.json(filteredRecipes);
+  } catch (error) {
+    console.error("Error en searchByIngredient:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

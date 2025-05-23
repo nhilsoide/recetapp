@@ -1,0 +1,240 @@
+// Modifica el return para separar las búsquedas
+return (
+  <>
+    {/* ... (header y navbar se mantienen igual) ... */}
+
+    <main className="container mt-5">
+      <section className="search-container animate__animated animate__fadeInUp">
+        <h2>Descubre nuevas recetas</h2>
+        <form className="search-form" onSubmit={e => e.preventDefault()}>
+          <div className="row g-2">
+            <div className="col-md-6">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar por nombre de receta..."
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </div>
+            <div className="col-md-6">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar por ingrediente..."
+                value={ingredientSearch}
+                onChange={(e) => setIngredientSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <button
+            className="btn btn-custom mt-2"
+            type="button"
+            onClick={handleRandomRecipe}
+          >
+            <i className="bi bi-shuffle me-2"></i> Receta Aleatoria
+          </button>
+        </form>
+      </section>
+
+      {/* Sección para resultados de búsqueda por nombre */}
+      {searchTerm.trim() !== '' && (
+        <section className="filtered-results animate__animated animate__fadeInUp mt-4">
+          <h3>Resultados para "{searchTerm}"</h3>
+          {filteredRecipes.length > 0 ? (
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+              {filteredRecipes.map(recipe => (
+                <div className="col" key={recipe._id}>
+                  <RecipeCard
+                    recipe={recipe}
+                    isSelected={selectedRecipe?._id === recipe._id}
+                    onViewRecipe={handleViewRecipe}
+                    fixedHeight={true}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="alert alert-info mt-4 text-center">
+              No se encontraron recetas que coincidan con este nombre.
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Nueva sección para resultados de búsqueda por ingrediente */}
+      {ingredientSearch.trim() !== '' && searchTerm.trim() === '' && (
+        <section className="ingredient-results animate__animated animate__fadeInUp mt-4">
+          <h3>Recetas con "{ingredientSearch}"</h3>
+          {filteredRecipes.length > 0 ? (
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+              {filteredRecipes.map(recipe => (
+                <div className="col" key={recipe._id}>
+                  <RecipeCard
+                    recipe={recipe}
+                    isSelected={selectedRecipe?._id === recipe._id}
+                    onViewRecipe={handleViewRecipe}
+                    fixedHeight={true}
+                    highlightIngredient={ingredientSearch}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="alert alert-info mt-4 text-center">
+              No se encontraron recetas con este ingrediente.
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Sección de categorías (solo se muestra cuando no hay búsquedas activas) */}
+      {searchTerm.trim() !== '' ? (
+          <section className="filtered-results animate__animated animate__fadeInUp">
+            <h3>Resultados para "{searchTerm}"</h3>
+            {filteredRecipes.length > 0 ? (
+              <div className="search-results-grid">
+                {filteredRecipes.map(recipe => (
+                  <div className="search-result-card" key={recipe._id}>
+                    <div className="position-relative overflow-hidden">
+                      <img
+                        src={recipe.imageUrl ? `http://localhost:5000${recipe.imageUrl}` : '/default-recipe.jpg'}
+                        className="search-result-img"
+                        alt={recipe.name}
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewRecipe(recipe);
+                        }}
+                        className="favorite-btn position-absolute top-0 end-0 m-2"
+                      >
+                        <FontAwesomeIcon
+                          icon={regularHeart}
+                          color="white"
+                          size="lg"
+                        />
+                      </button>
+                    </div>
+
+                    <div className="search-result-body">
+                      <h4 className="search-result-title">{recipe.name}</h4>
+                      <p className="search-result-description">{recipe.description}</p>
+
+                      <div className="search-result-meta">
+                        <span className="search-result-badge">{recipe.difficulty}</span>
+                        <span className="search-result-badge">{recipe.preparationTime} min</span>
+                      </div>
+                    </div>
+
+                    <div className="search-result-footer">
+                      <button
+                        onClick={() => handleViewRecipe(recipe)}
+                        className="btn btn-custom btn-sm w-100"
+                      >
+                        <i className="bi bi-eye-fill me-2"></i> Ver receta completa
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="alert alert-info mt-4 text-center py-4">
+                <i className="bi bi-search me-2" style={{ fontSize: '1.5rem' }}></i>
+                <h4 className="mt-2">No encontramos recetas que coincidan</h4>
+                <p className="mb-0">Intenta con otros términos de búsqueda</p>
+              </div>
+            )}
+          </section>
+        ) : (
+          <>
+            {/* Sección de categorías mejorada */}
+            <section className="carousel-section animate__animated animate__fadeInUp mt-5">
+              <h2>Explora por categorías</h2>
+              <div className="categorias mb-4 d-flex flex-wrap">
+                {categories.map(categoria => (
+                  <button
+                    key={categoria}
+                    className={`btn ${categoria === selectedCategory ? 'btn-custom' : 'btn-outline-custom'} me-2 mb-2`}
+                    onClick={() => handleCategoryChange(categoria)}
+                  >
+                    {categoria === 'todas'
+                      ? 'Todas'
+                      : categoria.charAt(0).toUpperCase() + categoria.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {currentCategoryRecipes.length > 0 ? (
+                <>
+                  <div id="recipeCarousel" className="carousel slide" style={{ minHeight: '450px' }}>
+                    <div className="carousel-inner">
+                      {chunkRecipes(currentCategoryRecipes, 2).map((recipeGroup, groupIndex) => (
+                        <div
+                          className={`carousel-item ${groupIndex === activeIndex ? 'active' : ''}`}
+                          key={`group-${groupIndex}`}
+                        >
+                          <div className="row mx-0 justify-content-center">
+                            {recipeGroup.map(recipe => (
+                              <div className="col-lg-6 col-md-6 mb-4" key={recipe._id}>
+                                <div className="recipe-card-container">
+                                  <RecipeCard
+                                    recipe={recipe}
+                                    isSelected={selectedRecipe?._id === recipe._id}
+                                    onViewRecipe={handleViewRecipe}
+                                    carouselMode={true}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {chunkRecipes(currentCategoryRecipes, 2).length > 1 && (
+                      <>
+                        <button className="carousel-control-prev" onClick={handlePrev}>
+                          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                          <span className="visually-hidden">Previous</span>
+                        </button>
+                        <button className="carousel-control-next" onClick={handleNext}>
+                          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                          <span className="visually-hidden">Next</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="d-flex justify-content-center mt-4">
+                    {chunkRecipes(currentCategoryRecipes, 2).map((_, index) => (
+                      <button
+                        key={`indicator-${index}`}
+                        className={`mx-2 p-0 border-0 bg-${index === activeIndex ? 'dark' : 'secondary'} rounded-circle`}
+                        style={{
+                          width: '12px',
+                          height: '12px',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => goToSlide(index)}
+                        aria-label={`Slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="alert alert-info mt-4 text-center">
+                  <i className="bi bi-info-circle me-2"></i>No hay recetas en esta categoría
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+
+      {selectedRecipe && <RecipeDetail recipe={selectedRecipe} onBack={() => setSelectedRecipe(null)} />}
+    </main>
+
+    {/* ... (footer y botón de scroll se mantienen igual) ... */}
+  </>
+);

@@ -17,6 +17,7 @@ const Perfil = () => {
   const [showNewIngredientDropdown, setShowNewIngredientDropdown] = useState(false);
   const [showEditIngredientDropdown, setShowEditIngredientDropdown] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [editedUser, setEditedUser] = useState({
     nombre: userData?.nombre || '',
@@ -122,6 +123,10 @@ const Perfil = () => {
 
   // Cargar ingredientes disponibles
   useEffect(() => {
+
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token); // Si hay token, es true; si no, false
+
     const fetchIngredients = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/ingredients');
@@ -574,16 +579,18 @@ const Perfil = () => {
                 </li>
               </ul>
             </div>
-            <a
-              href="/login"
-              className="btn btn-custom"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate('/login');
-              }}
-            >
-              Iniciar Sesión
-            </a>
+            {isAuthenticated ? (
+              <>
+
+                <button onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('user');
+                  window.location.reload(); // Recarga la página para actualizar el estado
+                }} className="btn btn-danger mx-2">Cerrar Sesión</button>
+              </>
+            ) : (
+              <a href="/login" className="btn btn-custom">Iniciar Sesión</a>
+            )}
           </div>
         </nav>
       </header>

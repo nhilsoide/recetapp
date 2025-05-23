@@ -16,6 +16,11 @@ root.render(
     </AuthProvider>
   </React.StrictMode>
 );
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&family=Pacifico&family=Poppins:wght@600&display=swap';
+fontLink.rel = 'stylesheet';
+document.head.appendChild(fontLink);
+
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

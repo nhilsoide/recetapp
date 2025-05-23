@@ -23,8 +23,12 @@ const Buscar = () => {
   const [error] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [ingredientSearch, setIngredientSearch] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Efecto para mostrar/ocultar botón de scroll
+  //***************//
+  //Botón de scroll//
+  //***************//
   useEffect(() => {
     const handleScroll = () => {
       if (window.pageYOffset > 300) {
@@ -38,25 +42,12 @@ const Buscar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleViewRecipe = async (recipe) => {
-    setIsDetailLoading(true);
-    setSelectedRecipe(recipe);
-
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    requestAnimationFrame(() => {
-      const detailSection = document.getElementById('recipe-detail-section');
-      if (detailSection) {
-        detailSection.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-    setIsDetailLoading(false);
-  };
-
+  //***************//
+  //Obtener recetas//
+  //***************//
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token); // Si hay token, es true; si no, false
     const fetchRecipes = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/recipes');
@@ -83,11 +74,63 @@ const Buscar = () => {
     fetchRecipes();
   }, [location.state]);
 
+  //***********************//
+  //Recetas por ingrediente//
+  //***********************//
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        let url = 'http://localhost:5000/api/recipes';
+        if (ingredientSearch.trim() !== '') {
+          url = `http://localhost:5000/api/recipes/search/ingredient?ingredient=${encodeURIComponent(ingredientSearch)}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+        setRecipes(data);
+
+        // Resto de tu lógica existente...
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecipes();
+  }, [location.state, ingredientSearch]);
+
+  const handleViewRecipe = async (recipe) => {
+    setIsDetailLoading(true);
+    setSelectedRecipe(recipe);
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    requestAnimationFrame(() => {
+      const detailSection = document.getElementById('recipe-detail-section');
+      if (detailSection) {
+        detailSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+    setIsDetailLoading(false);
+  };
+
+
   const { filteredRecipes, recipesByCategory } = useMemo(() => {
     const filtered = recipes.filter(recipe => {
       const matchesCategory = selectedCategory === 'todas' ||
         recipe.category === selectedCategory;
       const matchesSearch = recipe.name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Búsqueda por ingrediente
+      const matchesIngredient = ingredientSearch.trim() === '' ||
+        recipe.ingredients?.some(ing =>
+          (ing.name || ing.ingredient?.name)?.toLowerCase().includes(ingredientSearch.toLowerCase())
+        );
+
       return matchesCategory && matchesSearch;
     });
 
@@ -100,7 +143,7 @@ const Buscar = () => {
     };
 
     return { filteredRecipes: filtered, recipesByCategory: byCategory };
-  }, [recipes, selectedCategory, searchTerm]);
+  }, [recipes, selectedCategory, searchTerm, ingredientSearch]);
 
   const handleCategoryChange = (categoria) => {
     setSelectedCategory(categoria);
@@ -200,23 +243,47 @@ const Buscar = () => {
                 <li className="nav-item"><a className="nav-link" href="/perfil">Perfil</a></li>
               </ul>
             </div>
-            <a href="/login" className="btn btn-custom">Iniciar Sesión</a>
+            {isAuthenticated ? (
+              <>
+
+                <button onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('user');
+                  window.location.reload(); // Recarga la página para actualizar el estado
+                }} className="btn btn-danger mx-2">Cerrar Sesión</button>
+              </>
+            ) : (
+              <a href="/login" className="btn btn-custom">Iniciar Sesión</a>
+            )}
           </div>
         </nav>
       </header>
 
       <main className="container mt-5">
-        {/* Sección de búsqueda mejorada */}
+        {/* Sección de búsqueda*/}
         <section className="search-container animate__animated animate__fadeInUp">
           <h2>Descubre nuevas recetas</h2>
           <form className="search-form" onSubmit={e => e.preventDefault()}>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Buscar por nombre de receta..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
+            <div className="row g-2">
+              <div className="col-md-6">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Buscar por nombre de receta..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                />
+              </div>
+              <div className="col-md-6">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Buscar por ingrediente..."
+                  value={ingredientSearch}
+                  onChange={(e) => setIngredientSearch(e.target.value)}
+                />
+              </div>
+            </div>
             <button
               className="btn btn-custom mt-2"
               type="button"

@@ -43,20 +43,20 @@ function Home() {
     };
 
     // Función para obtener recetas populares
-     const fetchPopularRecipes = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/favorites/popular?limit=4');
-      if (!response.ok) throw new Error('Error al cargar recetas populares');
-      const data = await response.json();
-      setPopularRecipes(data);
-    } catch (err) {
-      console.error('Error fetching popular recipes:', err);
-      setError(err.message);
-    }
-  };
+    const fetchPopularRecipes = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/favorites/popular?limit=4');
+        if (!response.ok) throw new Error('Error al cargar recetas populares');
+        const data = await response.json();
+        setPopularRecipes(data);
+      } catch (err) {
+        console.error('Error fetching popular recipes:', err);
+        setError(err.message);
+      }
+    };
 
-  fetchRecentRecipes();
-  fetchPopularRecipes();
+    fetchRecentRecipes();
+    fetchPopularRecipes();
 
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");
@@ -90,7 +90,7 @@ function Home() {
             </div>
             {isAuthenticated ? (
               <>
-                <a href="/perfil" className="btn btn-success mx-2">Perfil</a>
+
                 <button onClick={() => {
                   localStorage.removeItem('token');
                   localStorage.removeItem('user');
@@ -133,7 +133,7 @@ function Home() {
                 {popularRecipes.map((recipe, index) => (
                   <div key={recipe._id} className={`carousel-item ${index === 0 ? 'active' : ''}`}>
                     <img
-                      src={'http://localhost:5000'+recipe.imageUrl || '/img/default-recipe.jpg'}
+                      src={'http://localhost:5000' + recipe.imageUrl || '/img/default-recipe.jpg'}
                       className="d-block w-100 carousel-image"
                       alt={recipe.name}
                       style={{ height: '400px', objectFit: 'cover' }}

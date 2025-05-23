@@ -4,10 +4,10 @@ const recipeController = require('../controllers/recipeController');
 const auth = require('../middleware/auth');
 const upload = require('../config/upload');
 
-// Rutas principales
+// Recetas
 router.get('/', recipeController.getRecipes);
 
-// Ruta de prueba (opcional)
+// Test
 router.get('/mensaje', (req, res) => {
   res.status(200).json({ 
     status: 'success',
@@ -15,12 +15,16 @@ router.get('/mensaje', (req, res) => {
   });
 });
 
+// Crear receta
 router.post('/', auth, upload.single('image'), recipeController.createRecipe);
 
-// En tu archivo de rutas (routes/recipeRoutes.js o similar)
+// Recetas por usuario
 router.get('/user', auth, recipeController.getUserRecipes);
 
-// En tu backend (recipeRoutes.js)
+// Modificar receta
 router.put('/:id', auth, upload.single('image'), recipeController.updateRecipe);
+
+//Obtener recetas por ingredientes
+router.get('/search/ingredient', recipeController.searchByIngredient);
 
 module.exports = router;
