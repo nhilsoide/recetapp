@@ -299,3 +299,7 @@ main {
   border-radius: 8px;
   padding: 10px;
 }
+main {
+  padding: 40px 0;
+  margin-bottom: 60px; /* Añade este margen para evitar superposición con el footer */
+}
