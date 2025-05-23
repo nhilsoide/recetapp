@@ -4,8 +4,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Login.css';
 import axios from 'axios';
-// import { ToastContainer, toast } from 'react-toastify';
-// import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Login = () => {  
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -27,10 +27,10 @@ const Login = () => {
     setError('');
 
     if (!formData.email || !formData.password) {
-      // toast.error('Por favor, completa todos los campos.', {
-      //   position: "top-center",
-      //   autoClose: 5000,
-      // });
+      toast.error('Por favor, completa todos los campos.', {
+        position: "top-center",
+        autoClose: 5000,
+      });
       return;
     }
 
@@ -51,26 +51,26 @@ const Login = () => {
       if (data.isAdmin) {
         localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
-        // toast.success('¡Bienvenido Administrador!', {
-        //   position: "top-center",
-        //   autoClose: 2000,
-        //   onClose: () => navigate('/admin') // Redirige al panel de admin
-        // });
+        toast.success('¡Bienvenido Administrador!', {
+          position: "top-center",
+          autoClose: 2000,
+          onClose: () => navigate('/admin') // Redirige al panel de admin
+        });
       }else{
         if (data.success) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('user', JSON.stringify(data.user));
   
-          // toast.success('¡Inicio de sesión exitoso!', {
-          //   position: "top-center",
-          //   autoClose: 2000,
-          //   onClose: () => navigate('/')
-          // });
+          toast.success('¡Inicio de sesión exitoso!', {
+            position: "top-center",
+            autoClose: 2000,
+            onClose: () => navigate('/')
+          });
         } else {
-          // toast.error(data.message, {
-          //   position: "top-center",
-          //   autoClose: 4000
-          // });
+          toast.error(data.message, {
+            position: "top-center",
+            autoClose: 4000
+          });
         }
       }      
 
@@ -81,10 +81,10 @@ const Login = () => {
 
       console.error('Error completo:', err.response?.data || err);
 
-      // toast.error(errorMsg, {
-      //   position: "top-center",
-      //   autoClose: 5000
-      // });
+      toast.error(errorMsg, {
+        position: "top-center",
+        autoClose: 5000
+      });
     }
   };
 
@@ -217,7 +217,7 @@ const Login = () => {
       <footer>
         <p>&copy; 2025 RecetApp - Todos los derechos reservados</p>
       </footer>
-      {/* <ToastContainer /> */}
+      <ToastContainer />
     </>
   );
 };

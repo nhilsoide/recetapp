@@ -1,21 +1,37 @@
+// controllers/recipeController.js
+
 const Recipe = require('../models/Recipe');
 const RecipeIngredient = require('../models/RecipeIngredient');
 const Ingredient = require('../models/Ingredient');
 const multer = require('multer');
 const path = require('path');
 
+// Configuración de Multer (puedes extraer esto a otro archivo si lo prefieres)
+const upload = multer({
+  dest: 'uploads/',
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes'), false);
+    }
+  }
+});
+
+// =======================================
 // Crear receta
+// =======================================
 exports.createRecipe = async (req, res) => {
   try {
-    console.log("Cuerpo completo recibido:", req.body); // Debug
+    console.log("Cuerpo completo recibido:", req.body);
 
-    // 1. Procesar imagen
+    // 1. Procesar imagen (si existe)
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
-    // 2. Verificar campos requeridos con mejor manejo de errores
+    // 2. Verificar campos requeridos
     const requiredFields = ['name', 'description', 'instructions', 'ingredients', 'difficulty'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
-
     if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
@@ -24,9 +40,9 @@ exports.createRecipe = async (req, res) => {
       });
     }
 
-    // 3. Parsear datos seguramente
-    let parsedInstructions, parsedIngredients;
-
+    // 3. Parsear instrucciones e ingredientes
+    let parsedInstructions;
+    let parsedIngredients;
     try {
       parsedInstructions = typeof req.body.instructions === 'string'
         ? JSON.parse(req.body.instructions)
@@ -36,12 +52,12 @@ exports.createRecipe = async (req, res) => {
         ? JSON.parse(req.body.ingredients)
         : req.body.ingredients;
     } catch (parseError) {
-      console.error("Error parseando:", parseError);
+      console.error("Error parseando instrucciones/ingredientes:", parseError);
       return res.status(400).json({
         error: "Formato inválido en instrucciones o ingredientes",
         sample_format: {
           instructions: '["Paso 1", "Paso 2"]',
-          ingredients: '[{"ingredient":"id","quantity":1}]'
+          ingredients: '[{"ingredient":"<id_ingrediente>","quantity":1,"notes":""}]'
         }
       });
     }
@@ -58,12 +74,14 @@ exports.createRecipe = async (req, res) => {
       imageUrl,
       author: req.user.id
     };
+
     console.log("Archivo recibido:", req.file);
 
+    // 5. Crear la receta
     const recipe = await Recipe.create(recipeData);
 
-    // Asociar ingredientes
-    if (parsedIngredients.length > 0) {
+    // 6. Asociar ingredientes (crear documentos en RecipeIngredient)
+    if (Array.isArray(parsedIngredients) && parsedIngredients.length > 0) {
       const recipeIngredients = parsedIngredients.map(ing => ({
         ingredient: ing.ingredient,
         quantity: ing.quantity,
@@ -73,7 +91,7 @@ exports.createRecipe = async (req, res) => {
       await RecipeIngredient.insertMany(recipeIngredients);
     }
 
-    // Responder con la receta completa
+    // 7. Responder con la receta poblada
     const fullRecipe = await Recipe.findById(recipe._id)
       .populate({
         path: 'ingredients',
@@ -84,7 +102,7 @@ exports.createRecipe = async (req, res) => {
     res.status(201).json(fullRecipe);
 
   } catch (error) {
-    console.error("Error completo:", {
+    console.error("Error interno en createRecipe:", {
       message: error.message,
       stack: error.stack,
       receivedBody: req.body,
@@ -97,7 +115,9 @@ exports.createRecipe = async (req, res) => {
   }
 };
 
-// Recetas activas
+// =======================================
+// Obtener recetas activas (con filtros, búsqueda, paginación, etc.)
+// =======================================
 exports.getActiveRecipes = async (req, res) => {
   try {
     const { category, difficulty, time, search, limit } = req.query;
@@ -108,7 +128,7 @@ exports.getActiveRecipes = async (req, res) => {
     if (difficulty) query.difficulty = difficulty;
     if (time) query.preparationTime = { $lte: parseInt(time) };
 
-    // Búsqueda
+    // Búsqueda por texto en nombre/description
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -129,15 +149,16 @@ exports.getActiveRecipes = async (req, res) => {
     }
 
     const recipes = await queryBuilder.exec();
-
     res.json(recipes);
   } catch (error) {
+    console.error("Error en getActiveRecipes:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-
+// =======================================
 // Obtener receta por ID
+// =======================================
 exports.getRecipeById = async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id)
@@ -153,25 +174,28 @@ exports.getRecipeById = async (req, res) => {
 
     res.json(recipe);
   } catch (error) {
+    console.error("Error en getRecipeById:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener recetas (con filtros)
+// =======================================
+// Obtener recetas con filtros (para todos los usuarios/admin)
+// =======================================
 exports.getRecipes = async (req, res) => {
   try {
     const { category, difficulty, time, search } = req.query;
-    const query = {};
-    const limit = parseInt(req.query.limit) || 10; // Si no viene limit, muestra 10
+    const limit = parseInt(req.query.limit) || 10;
     const sort = req.query.sort || '-createdAt';
+    const query = {};
 
-     // Construir objeto de consulta
-    const queryOptions = {
-      limit: limit,
-      sort: sort
-    };
+    // Solo recetas activas para usuarios normales
+    query.isActive = true;
+    if (req.user?.role === 'admin') {
+      delete query.isActive;
+    }
 
-    // Filtros básicos
+    // Filtros opcionales
     if (category) query.category = category;
     if (difficulty) query.difficulty = difficulty;
     if (time) query.preparationTime = { $lte: parseInt(time) };
@@ -184,38 +208,30 @@ exports.getRecipes = async (req, res) => {
       ];
     }
 
-    // Para usuarios normales: solo recetas públicas y activas
-    query.isActive = true;
-    // query.visibility = 'pública';       
-
-    // Para admin: obtiene todas las recetas
-    if (req.user?.role === 'admin') {
-      delete query.isActive;
-      delete query.visibility;
-    }
-
     const recipes = await Recipe.find(query)
-      .sort(queryOptions.sort)
-      .limit(queryOptions.limit)
+      .sort(sort)
+      .limit(limit)
       .populate({
         path: 'ingredients',
         populate: {
           path: 'ingredient',
-          model: 'Ingredient', // Asegurar población completa
-          select: 'name unit' // Seleccionar campos necesarios
+          model: 'Ingredient',
+          select: 'name unit'
         }
       })
+      .populate('author', 'nombre')
       .sort({ createdAt: -1 });
 
     res.json(recipes);
   } catch (error) {
+    console.error("Error en getRecipes:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener todas las recetas activas
-
+// =======================================
 // Obtener recetas del usuario (activas e inactivas)
+// =======================================
 exports.getUserRecipes = async (req, res) => {
   try {
     const recipes = await Recipe.find({ author: req.user.id })
@@ -227,16 +243,17 @@ exports.getUserRecipes = async (req, res) => {
 
     res.json(recipes);
   } catch (error) {
+    console.error("Error en getUserRecipes:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
+// =======================================
 // Actualizar receta
+// =======================================
 exports.updateRecipe = async (req, res) => {
   try {
-    const { ingredients, ...recipeData } = req.body;
-
-    // Verificar que la receta exista y pertenezca al usuario
+    // 1. Verificar que la receta exista y pertenezca al usuario
     const recipe = await Recipe.findOne({
       _id: req.params.id,
       author: req.user.id
@@ -246,24 +263,69 @@ exports.updateRecipe = async (req, res) => {
       return res.status(404).json({ error: 'Receta no encontrada o no tienes permiso' });
     }
 
-    // Actualizar datos básicos
+    // 2. Parsear ingredientes (y opcionalmente instrucciones) del body
+    let parsedIngredients = [];
+    let parsedInstructions = [];
+    if (req.body.ingredients) {
+      try {
+        parsedIngredients = typeof req.body.ingredients === 'string'
+          ? JSON.parse(req.body.ingredients)
+          : req.body.ingredients;
+      } catch (parseError) {
+        console.error("Error parseando ingredientes en updateRecipe:", parseError);
+        return res.status(400).json({ error: 'Formato inválido en ingredients' });
+      }
+    }
+    if (req.body.instructions) {
+      try {
+        parsedInstructions = typeof req.body.instructions === 'string'
+          ? JSON.parse(req.body.instructions)
+          : req.body.instructions;
+      } catch (parseError) {
+        console.error("Error parseando instrucciones en updateRecipe:", parseError);
+        return res.status(400).json({ error: 'Formato inválido en instructions' });
+      }
+    }
+
+    // 3. Construir objeto 'recipeData' con los campos editables (excepto ingredientes)
+    // Extraemos ingredients para no sobrescribir con texto
+    const { ingredients, instructions, ...otherFields } = req.body;
+    const recipeData = { ...otherFields };
+
+    // Si el usuario sube una nueva imagen (usando multer en la ruta), reemplazamos imageUrl
+    if (req.file) {
+      recipeData.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    // 4. Actualizar los campos básicos de la receta
+    //    (esto actualiza sólo las propiedades que vienen en recipeData)
     Object.assign(recipe, recipeData);
+
+    // 5. Reemplazar instrucciones si fueron enviadas
+    if (parsedInstructions.length > 0) {
+      recipe.instructions = parsedInstructions;
+    }
+
     await recipe.save();
 
-    // Actualizar ingredientes si se proporcionan
-    if (ingredients) {
+    // 6. Si vienen ingredientes, borramos los viejos y guardamos los nuevos
+    if (Array.isArray(parsedIngredients)) {
+      // Eliminamos asociaciones previas
       await RecipeIngredient.deleteMany({ recipe: recipe._id });
 
-      if (ingredients.length > 0) {
-        const recipeIngredients = ingredients.map(ing => ({
-          ...ing,
+      // Insertamos nuevamente
+      if (parsedIngredients.length > 0) {
+        const recipeIngredients = parsedIngredients.map(ing => ({
+          ingredient: ing.ingredient,
+          quantity: ing.quantity,
+          notes: ing.notes || '',
           recipe: recipe._id
         }));
         await RecipeIngredient.insertMany(recipeIngredients);
       }
     }
 
-    // Obtener receta actualizada
+    // 7. Obtener receta actualizada y poblarla para devolverla al frontend
     const updatedRecipe = await Recipe.findById(recipe._id)
       .populate({
         path: 'ingredients',
@@ -271,13 +333,19 @@ exports.updateRecipe = async (req, res) => {
       })
       .populate('author', 'nombre email');
 
-    res.json(updatedRecipe);
+    return res.json(updatedRecipe);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error en updateRecipe:", {
+      message: error.message,
+      stack: error.stack
+    });
+    return res.status(400).json({ error: error.message });
   }
 };
 
-// Cambiar estado de la receta (activo/inactivo)
+// =======================================
+// Cambiar estado de la receta (activar/desactivar)
+// =======================================
 exports.toggleRecipeStatus = async (req, res) => {
   try {
     const recipe = await Recipe.findOne({
@@ -297,19 +365,9 @@ exports.toggleRecipeStatus = async (req, res) => {
       isActive: recipe.isActive
     });
   } catch (error) {
+    console.error("Error en toggleRecipeStatus:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Configuración de Multer (debes mover esto desde el archivo multer.js o importarlo)
-const upload = multer({
-  dest: 'uploads/',
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo se permiten imágenes'), false);
-    }
-  }
-});
+

@@ -1,3 +1,4 @@
+// client/src/pages/Search.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style/Search.css';
@@ -5,7 +6,6 @@ import RecipeCard from '../components/RecipeCard';
 import RecipeDetail from '../components/RecipeDetail';
 import Spinner from '../components/Spinner';
 import { useLocation } from 'react-router-dom';
-
 
 const Buscar = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -103,6 +103,7 @@ const Buscar = () => {
     setSelectedCategory(categoria);
     setActiveIndex(0);
     setSelectedRecipe(null);
+    setSearchTerm(''); // reset search when changing category
   };
 
   const handleSearch = (e) => {
@@ -110,10 +111,10 @@ const Buscar = () => {
     setActiveIndex(0);
   };
 
-  const chunkRecipes = (recipes, size = 2) => {
+  const chunkRecipes = (recipesArray, size = 2) => {
     const chunks = [];
-    for (let i = 0; i < recipes.length; i += size) {
-      chunks.push(recipes.slice(i, i + size));
+    for (let i = 0; i < recipesArray.length; i += size) {
+      chunks.push(recipesArray.slice(i, i + size));
     }
     return chunks;
   };
@@ -121,38 +122,40 @@ const Buscar = () => {
   const currentCategoryRecipes = recipesByCategory[selectedCategory] || [];
 
   const handlePrev = () => {
-  setActiveIndex(prev => {
-    const newIndex = prev === 0 ?
-      Math.ceil(currentCategoryRecipes.length / 2) - 1 :
-      prev - 1;
-    
-    const carouselInner = document.querySelector('.carousel-inner');
-    if (carouselInner) {
-      carouselInner.style.animation = 'none';
-      setTimeout(() => {
-        carouselInner.style.animation = '';
-      }, 10);
-    }
-    return newIndex;
-  });
-};
+    setActiveIndex(prev => {
+      const newIndex =
+        prev === 0
+          ? Math.ceil(currentCategoryRecipes.length / 2) - 1
+          : prev - 1;
+
+      const carouselInner = document.querySelector('.carousel-inner');
+      if (carouselInner) {
+        carouselInner.style.animation = 'none';
+        setTimeout(() => {
+          carouselInner.style.animation = '';
+        }, 10);
+      }
+      return newIndex;
+    });
+  };
 
   const handleNext = () => {
-  setActiveIndex(prev => {
-    const newIndex = prev === Math.ceil(currentCategoryRecipes.length / 2) - 1 ?
-      0 :
-      prev + 1;
-    
-    const carouselInner = document.querySelector('.carousel-inner');
-    if (carouselInner) {
-      carouselInner.style.animation = 'none';
-      setTimeout(() => {
-        carouselInner.style.animation = '';
-      }, 10);
-    }
-    return newIndex;
-  });
-};
+    setActiveIndex(prev => {
+      const newIndex =
+        prev === Math.ceil(currentCategoryRecipes.length / 2) - 1
+          ? 0
+          : prev + 1;
+
+      const carouselInner = document.querySelector('.carousel-inner');
+      if (carouselInner) {
+        carouselInner.style.animation = 'none';
+        setTimeout(() => {
+          carouselInner.style.animation = '';
+        }, 10);
+      }
+      return newIndex;
+    });
+  };
 
   const goToSlide = (index) => {
     setActiveIndex(index);
@@ -203,7 +206,7 @@ const Buscar = () => {
         {/* Sección de búsqueda mejorada */}
         <section className="search-container animate__animated animate__fadeInUp">
           <h2>Descubre nuevas recetas</h2>
-          <form className="search-form">
+          <form className="search-form" onSubmit={e => e.preventDefault()}>
             <input
               type="text"
               className="form-control"
@@ -212,7 +215,7 @@ const Buscar = () => {
               onChange={handleSearch}
             />
             <button
-              className="btn btn-custom"
+              className="btn btn-custom mt-2"
               type="button"
               onClick={() => {
                 if (filteredRecipes.length > 0) {
@@ -226,84 +229,113 @@ const Buscar = () => {
           </form>
         </section>
 
-        {/* Sección de categorías mejorada */}
-        <section className="carousel-section animate__animated animate__fadeInUp">
-          <h2>Explora por categorías</h2>
-          <div className="categorias mb-4 d-flex flex-wrap">
-            {categories.map(categoria => (
-              <button
-                key={categoria}
-                className={`btn ${categoria === selectedCategory ? 'btn-custom' : 'btn-outline-custom'} me-2 mb-2`}
-                onClick={() => handleCategoryChange(categoria)}
-              >
-                {categoria === 'todas' ? 'Todas' : categoria.charAt(0).toUpperCase() + categoria.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {currentCategoryRecipes.length > 0 ? (
-            <>
-              <div id="recipeCarousel" className="carousel slide" style={{ minHeight: '450px' }}>
-                <div className="carousel-inner">
-                  {chunkRecipes(currentCategoryRecipes, 2).map((recipeGroup, groupIndex) => (
-                    <div
-                      className={`carousel-item ${groupIndex === activeIndex ? 'active' : ''}`}
-                      key={`group-${groupIndex}`}
-                    >
-                      <div className="row mx-0 justify-content-center">
-                        {recipeGroup.map(recipe => (
-                          <div className="col-lg-6 col-md-6 mb-4" key={recipe._id}>
-                            <div className="recipe-card-container">
-                              <RecipeCard
-                                recipe={recipe}
-                                isSelected={selectedRecipe?._id === recipe._id}
-                                onViewRecipe={handleViewRecipe}
-                                carouselMode={true}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {chunkRecipes(currentCategoryRecipes, 2).length > 1 && (
-                  <>
-                    <button className="carousel-control-prev" onClick={handlePrev}>
-                      <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                      <span className="visually-hidden">Previous</span>
-                    </button>
-                    <button className="carousel-control-next" onClick={handleNext}>
-                      <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                      <span className="visually-hidden">Next</span>
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="d-flex justify-content-center mt-4">
-                {chunkRecipes(currentCategoryRecipes, 2).map((_, index) => (
-                  <button
-                    key={`indicator-${index}`}
-                    className={`mx-2 p-0 border-0 bg-${index === activeIndex ? 'dark' : 'secondary'} rounded-circle`}
-                    style={{
-                      width: '12px',
-                      height: '12px',
-                      transition: 'all 0.3s ease'
-                    }}
-                    onClick={() => goToSlide(index)}
-                    aria-label={`Slide ${index + 1}`}
-                  />
+        {/* Si hay término de búsqueda, mostrar resultados filtrados */}
+        {searchTerm.trim() !== '' ? (
+          <section className="filtered-results container-fluid mt-5">
+            <h3>Resultados de búsqueda para "{searchTerm}"</h3>
+            {filteredRecipes.length > 0 ? (
+              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-4">
+                {filteredRecipes.slice(0, 3).map(recipe => (
+                  <div className="col" key={recipe._id}>
+                    <RecipeCard
+                      recipe={recipe}
+                      isSelected={selectedRecipe?._id === recipe._id}
+                      onViewRecipe={handleViewRecipe}
+                      fixedHeight={true}
+                    />
+                  </div>
                 ))}
               </div>
-            </>
-          ) : (
-            <div className="alert alert-info mt-4 text-center">
-              <i className="bi bi-info-circle me-2"></i> No hay recetas en esta categoría
-            </div>
-          )}
-        </section>
+            ) : (
+              <div className="alert alert-info mt-4 text-center">
+                <i className="bi bi-info-circle me-2"></i>No se encontraron recetas que coincidan.
+              </div>
+            )}
+          </section>
+        ) : (
+          <>
+            {/* Sección de categorías mejorada */}
+            <section className="carousel-section animate__animated animate__fadeInUp mt-5">
+              <h2>Explora por categorías</h2>
+              <div className="categorias mb-4 d-flex flex-wrap">
+                {categories.map(categoria => (
+                  <button
+                    key={categoria}
+                    className={`btn ${categoria === selectedCategory ? 'btn-custom' : 'btn-outline-custom'} me-2 mb-2`}
+                    onClick={() => handleCategoryChange(categoria)}
+                  >
+                    {categoria === 'todas'
+                      ? 'Todas'
+                      : categoria.charAt(0).toUpperCase() + categoria.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {currentCategoryRecipes.length > 0 ? (
+                <>
+                  <div id="recipeCarousel" className="carousel slide" style={{ minHeight: '450px' }}>
+                    <div className="carousel-inner">
+                      {chunkRecipes(currentCategoryRecipes, 2).map((recipeGroup, groupIndex) => (
+                        <div
+                          className={`carousel-item ${groupIndex === activeIndex ? 'active' : ''}`}
+                          key={`group-${groupIndex}`}
+                        >
+                          <div className="row mx-0 justify-content-center">
+                            {recipeGroup.map(recipe => (
+                              <div className="col-lg-6 col-md-6 mb-4" key={recipe._id}>
+                                <div className="recipe-card-container">
+                                  <RecipeCard
+                                    recipe={recipe}
+                                    isSelected={selectedRecipe?._id === recipe._id}
+                                    onViewRecipe={handleViewRecipe}
+                                    carouselMode={true}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {chunkRecipes(currentCategoryRecipes, 2).length > 1 && (
+                      <>
+                        <button className="carousel-control-prev" onClick={handlePrev}>
+                          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                          <span className="visually-hidden">Previous</span>
+                        </button>
+                        <button className="carousel-control-next" onClick={handleNext}>
+                          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                          <span className="visually-hidden">Next</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="d-flex justify-content-center mt-4">
+                    {chunkRecipes(currentCategoryRecipes, 2).map((_, index) => (
+                      <button
+                        key={`indicator-${index}`}
+                        className={`mx-2 p-0 border-0 bg-${index === activeIndex ? 'dark' : 'secondary'} rounded-circle`}
+                        style={{
+                          width: '12px',
+                          height: '12px',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onClick={() => goToSlide(index)}
+                        aria-label={`Slide ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="alert alert-info mt-4 text-center">
+                  <i className="bi bi-info-circle me-2"></i>No hay recetas en esta categoría
+                </div>
+              )}
+            </section>
+          </>
+        )}
 
         {selectedRecipe && (
           <RecipeDetail
