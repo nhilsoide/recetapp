@@ -6,6 +6,9 @@ import RecipeCard from '../components/RecipeCard';
 import RecipeDetail from '../components/RecipeDetail';
 import Spinner from '../components/Spinner';
 import { useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const Buscar = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -231,24 +234,59 @@ const Buscar = () => {
 
         {/* Si hay término de búsqueda, mostrar resultados filtrados */}
         {searchTerm.trim() !== '' ? (
-          <section className="filtered-results container-fluid mt-5">
-            <h3>Resultados de búsqueda para "{searchTerm}"</h3>
+          <section className="filtered-results animate__animated animate__fadeInUp">
+            <h3>Resultados para "{searchTerm}"</h3>
             {filteredRecipes.length > 0 ? (
-              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-4">
-                {filteredRecipes.slice(0, 3).map(recipe => (
-                  <div className="col" key={recipe._id}>
-                    <RecipeCard
-                      recipe={recipe}
-                      isSelected={selectedRecipe?._id === recipe._id}
-                      onViewRecipe={handleViewRecipe}
-                      fixedHeight={true}
-                    />
+              <div className="search-results-grid">
+                {filteredRecipes.map(recipe => (
+                  <div className="search-result-card" key={recipe._id}>
+                    <div className="position-relative overflow-hidden">
+                      <img
+                        src={recipe.imageUrl ? `http://localhost:5000${recipe.imageUrl}` : '/default-recipe.jpg'}
+                        className="search-result-img"
+                        alt={recipe.name}
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewRecipe(recipe);
+                        }}
+                        className="favorite-btn position-absolute top-0 end-0 m-2"
+                      >
+                        <FontAwesomeIcon
+                          icon={regularHeart}
+                          color="white"
+                          size="lg"
+                        />
+                      </button>
+                    </div>
+
+                    <div className="search-result-body">
+                      <h4 className="search-result-title">{recipe.name}</h4>
+                      <p className="search-result-description">{recipe.description}</p>
+
+                      <div className="search-result-meta">
+                        <span className="search-result-badge">{recipe.difficulty}</span>
+                        <span className="search-result-badge">{recipe.preparationTime} min</span>
+                      </div>
+                    </div>
+
+                    <div className="search-result-footer">
+                      <button
+                        onClick={() => handleViewRecipe(recipe)}
+                        className="btn btn-custom btn-sm w-100"
+                      >
+                        <i className="bi bi-eye-fill me-2"></i> Ver receta completa
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="alert alert-info mt-4 text-center">
-                <i className="bi bi-info-circle me-2"></i>No se encontraron recetas que coincidan.
+              <div className="alert alert-info mt-4 text-center py-4">
+                <i className="bi bi-search me-2" style={{ fontSize: '1.5rem' }}></i>
+                <h4 className="mt-2">No encontramos recetas que coincidan</h4>
+                <p className="mb-0">Intenta con otros términos de búsqueda</p>
               </div>
             )}
           </section>

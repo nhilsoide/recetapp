@@ -1,15 +1,76 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import './style/RecipeCard.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
+import React, { useState, useEffect, useMemo } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const RecipeDetail = ({ recipe, onBack }) => {
+
+const RecipeDetail = ({ onClick, carouselMode = false, isExpanded = false, onViewRecipe, recipe, onBack }) => {
+
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Verificar si es favorito al cargar
+  useEffect(() => {
+    const checkFavorite = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/favorites/check/${recipe._id}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsFavorite(data.isFavorite);
+        }
+      } catch (error) {
+        console.error("Error checking favorite:", error);
+      }
+    };
+
+    if (isAuthenticated) {
+      checkFavorite();
+    }
+  }, [recipe._id, isAuthenticated]);
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem('token'));
+  }, []);
+
+  const toggleFavorite = async () => {
+    if (!isAuthenticated) {
+      alert('Por favor inicia sesión para guardar favoritos');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/favorites/${recipe._id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      setIsFavorite(data.isFavorite);
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
   return (
     <section id="recipe-detail-section" className="mb-5">
       <div className="detail-header bg-white p-4 border-bottom">
+        <button onClick={toggleFavorite} className="favorite-btn">
+          <FontAwesomeIcon
+            icon={isFavorite ? solidHeart : regularHeart}
+            color={isFavorite ? "red" : "gray"}
+          />
+        </button>
         <h2 className="mb-3">{recipe.name}</h2>
         <p className="lead">{recipe.description}</p>
       </div>
-
       <div className="detail-content bg-white p-4">
         <div className="row">
           {/* Columna de imagen */}
@@ -67,12 +128,6 @@ const RecipeDetail = ({ recipe, onBack }) => {
 
         {/* Botones */}
         <div className="d-flex gap-3 mt-4">
-          <button
-            className="btn btn-custom flex-grow-1 py-2"
-            onClick={() => alert("Receta añadida a favoritos")}
-          >
-            ♥ Añadir a Favoritos
-          </button>
           <button
             className="btn btn-outline-custom flex-grow-1 py-2"
             onClick={onBack}
