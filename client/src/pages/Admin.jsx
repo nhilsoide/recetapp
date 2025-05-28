@@ -1,4 +1,3 @@
-// client/src/pages/Admin.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +16,8 @@ const Admin = () => {
     const [loading, setLoading] = useState(false);
     const [newItem, setNewItem] = useState({ nombre: '', email: '', categoria: '' });
 
+    //Autenticación Admin
+    /////////////////////
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -28,38 +29,35 @@ const Admin = () => {
         }
     }, []);
 
+    //Usuarios y recetas (api)
+    //////////////////////////
     const fetchData = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-
-            // Obtener usuarios
+            //usuarios
             const usersResponse = await fetch('http://localhost:5000/api/users', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
             if (!usersResponse.ok) {
                 const errorText = await usersResponse.text();
                 throw new Error(`Error ${usersResponse.status}: ${errorText}`);
             }
-
             const usersData = await usersResponse.json();
 
-            // Obtener recetas
+            //recetas
             const recipesResponse = await fetch('http://localhost:5000/api/recipes/all', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
                 }
             });
-
             if (!recipesResponse.ok) {
                 const errorText = await recipesResponse.text();
                 throw new Error(`Error ${recipesResponse.status}: ${errorText}`);
             }
-
             const recipesData = await recipesResponse.json();
 
             setUsers(usersData);
@@ -72,50 +70,52 @@ const Admin = () => {
         }
     };
 
+    //Activar/desactivar receta
+    ///////////////////////////
     const handleToggleRecipeStatus = async (recipeId, currentStatus) => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5000/api/recipes/${recipeId}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ currentStatus }) // Envía el estado actual
-        });
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:5000/api/recipes/${recipeId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ currentStatus })
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al cambiar estado');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al cambiar estado');
+            }
+            const data = await response.json();
+            setRecipes(prevRecipes =>
+                prevRecipes.map(recipe =>
+                    recipe._id === recipeId ? { ...recipe, isActive: data.isActive } : recipe
+                )
+            );
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message);
         }
+    };
 
-        const data = await response.json();
-
-        // Actualizar el estado local de las recetas
-        setRecipes(prevRecipes =>
-            prevRecipes.map(recipe =>
-                recipe._id === recipeId ? { ...recipe, isActive: data.isActive } : recipe
-            )
-        );
-
-    } catch (error) {
-        console.error('Error:', error);
-        alert(error.message);
-    }
-};
-
+    //Limpiar campo
+    ///////////////
     const handleResetView = () => {
         setSearchTerm('');
         setSearchResults(null);
     };
 
+    //búsqueda filtrada
+    ///////////////////
     const handleSearch = (e) => {
         e.preventDefault();
         if (!searchTerm.trim()) {
             setSearchResults(null);
             return;
         }
-
         const results = {
             usuarios: users.filter(user =>
                 user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,79 +131,18 @@ const Admin = () => {
         };
 
         setSearchResults(results);
-    };
+    };    
 
-    const handleToggleUserStatus = async (userId, currentStatus) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:5000/api/users/${userId}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Error al cambiar estado');
-            }
-
-            const data = await response.json();
-
-            setUsers(prevUsers =>
-                prevUsers.map(user =>
-                    user._id === userId ? { ...user, isActive: data.isActive } : user
-                )
-            );
-
-        } catch (error) {
-            console.error('Error:', error);
-            alert(error.message);
-        }
-    };
-
-    const handleDelete = async (type, id) => {
-        if (window.confirm(`¿Estás seguro de eliminar este ${type}?`)) {
-            try {
-                const token = localStorage.getItem('token');
-                const endpoint = type === 'usuario' ? `users/${id}` : `recipes/${id}`;
-
-                const response = await fetch(`http://localhost:5000/api/${endpoint}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error al eliminar');
-                }
-
-                if (type === 'usuario') {
-                    setUsers(users.filter(user => user._id !== id));
-                } else {
-                    setRecipes(recipes.filter(recipe => recipe._id !== id));
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert(error.message);
-            }
-        }
-    };
-
+    //cerrar sesión
+    ///////////////
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login');
     };
 
-    const handleAddItem = (e) => {
-        e.preventDefault();
-        // Implementar lógica para agregar nuevos items según sea necesario
-        alert('Función de agregar nuevo item a implementar según tu API');
-        setNewItem({ nombre: '', email: '', categoria: '' });
-    };
-
+    //Scroll
+    ////////
     useEffect(() => {
         const handleScroll = () => {
             const btn = document.getElementById("btn-scroll-top");
@@ -214,7 +153,6 @@ const Admin = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };

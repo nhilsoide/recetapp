@@ -1,4 +1,3 @@
-// client/src/pages/Login.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -89,62 +88,7 @@ const Login = () => {
   };
 
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-
-    if (!formData.email) {
-      // toast.error('Por favor ingresa tu email', {
-      //   position: "top-center",
-      //   autoClose: 3000
-      // });
-      return;
-    }
-
-    try {
-      const { data } = await axios.post(
-        '/api/auth/forgot-password', // URL completa
-        { email: formData.email },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      // Mostrar mensaje según el entorno
-      if (process.env.NODE_ENV === 'development' && data.password) {
-        // toast.info(
-        //   <div>
-        //     <p>Para desarrollo: Tu contraseña es</p>
-        //     <p><strong>{data.password}</strong></p>
-        //     <p><small>En producción esto no sería visible</small></p>
-        //   </div>,
-        //   {
-        //     position: "top-center",
-        //     autoClose: 10000,
-        //     closeButton: true
-        //   }
-        // );
-      } else {
-        // toast.success(
-        //   'Si el email existe, se enviaron instrucciones a tu correo',
-        //   {
-        //     position: "top-center",
-        //     autoClose: 5000
-        //   }
-        // );
-      }
-
-    } catch (err) {
-      const errorMsg = err.response?.data?.error || 'Error al procesar la solicitud';
-      // toast.error(errorMsg, {
-      //   position: "top-center",
-      //   autoClose: 5000
-      // });
-    }
-  };
-
-  // Efecto para el botón de scroll
+  //botón de scroll
   useEffect(() => {
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");

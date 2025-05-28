@@ -10,6 +10,8 @@ const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false,
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
+
 
   // Verificar si es favorito al cargar
   useEffect(() => {
@@ -40,7 +42,8 @@ const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false,
 
   const toggleFavorite = async () => {
     if (!isAuthenticated) {
-      alert('Por favor inicia sesión para guardar favoritos');
+      setShowLoginMessage(true);
+      setTimeout(() => setShowLoginMessage(false), 3000); // desaparece después de 3s
       return;
     }
 
@@ -58,10 +61,12 @@ const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false,
     }
   };
 
+
   return (
+
     <div className={`${carouselMode ? '' : 'col-md-4 mb-4'}`}>
       <div className={`card h-100 ${carouselMode ? 'border-0 shadow-sm' : ''} ${isExpanded ? 'expanded-card' : ''}`}>
-        <div className="card-img-container position-relative">
+        <div className="card-img-container position-relative">          
           <img
             src={recipe.imageUrl ? `http://localhost:5000${recipe.imageUrl}` : '/default-recipe.jpg'}
             className="card-img-top img-fluid"
@@ -75,11 +80,17 @@ const RecipeCard = ({ recipe, onClick, carouselMode = false, isExpanded = false,
             }}
           />
           <button onClick={toggleFavorite} className="favorite-btn">
+
             <FontAwesomeIcon
               icon={isFavorite ? solidHeart : regularHeart}
               color={isFavorite ? "red" : "gray"}
             />
           </button>
+          {showLoginMessage && (
+            <div className="custom-alert warning mb-2">
+              ⚠️ Por favor inicia sesión para guardar favoritos
+            </div>
+          )}
           <div className="position-absolute top-0 start-0 p-2">
             <span className="badge bg-dark">{recipe.difficulty}</span>
           </div>

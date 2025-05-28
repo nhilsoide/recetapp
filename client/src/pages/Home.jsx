@@ -4,7 +4,9 @@ import './style/Home.css';
 import { useEffect, useState } from 'react';
 import RecipeCard from '../components/RecipeCard';
 import { useNavigate } from 'react-router-dom';
+
 function Home() {
+  //autenticación, recetas y manejo de errores
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [recentRecipes, setRecentRecipes] = useState([]);
   const [popularRecipes, setPopularRecipes] = useState([]);
@@ -13,6 +15,8 @@ function Home() {
 
   const navigate = useNavigate();
 
+  //Redirección a la página de búsqueda con una receta
+  ////////////////////////////////////////////////////
   const handleViewRecipe = (recipe) => {
     navigate('/buscar', {
       state: {
@@ -22,11 +26,12 @@ function Home() {
     });
   };
 
+  //Autenticación y recetas (api)
+  ///////////////////////////////
   useEffect(() => {
     const token = localStorage.getItem('token');
-    setIsAuthenticated(!!token); // Si hay token, es true; si no, false
+    setIsAuthenticated(!!token);
 
-    // Función para obtener recetas recientes
     const fetchRecentRecipes = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/recipes?limit=3');
@@ -42,7 +47,7 @@ function Home() {
       }
     };
 
-    // Función para obtener recetas populares
+    // Función para obtener recetas populares desde la API
     const fetchPopularRecipes = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/favorites/popular?limit=4');
@@ -55,9 +60,11 @@ function Home() {
       }
     };
 
+    // Llamadas iniciales a la API
     fetchRecentRecipes();
     fetchPopularRecipes();
 
+    // Muestra u oculta el botón de scroll dependiendo de la posición en la página
     const handleScroll = () => {
       const btn = document.getElementById("btn-scroll-top");
       btn.style.display = (document.documentElement.scrollTop > 100) ? "block" : "none";
@@ -66,6 +73,8 @@ function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  //Scroll
+  ////////
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -88,33 +97,32 @@ function Home() {
                 <li className="nav-item"><a className="nav-link" href="/perfil">Perfil</a></li>
               </ul>
             </div>
-            {isAuthenticated ? (
-              <>
 
-                <button onClick={() => {
-                  localStorage.removeItem('token');
-                  localStorage.removeItem('user');
-                  window.location.reload(); // Recarga la página para actualizar el estado
-                }} className="btn btn-danger mx-2">Cerrar Sesión</button>
-              </>
+            {/*Cerrar/iniciar sesión */}
+            {isAuthenticated ? (
+              <button onClick={() => {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.reload(); // Recarga la página para aplicar cambios
+              }} className="btn btn-danger mx-2">Cerrar Sesión</button>
             ) : (
               <a href="/login" className="btn btn-custom">Iniciar Sesión</a>
             )}
-
-
           </div>
         </nav>
       </header>
 
+      {/* Contenido principal de la página */}
       <main className="container mt-5">
 
+        {/* Aviso para usuarios no autenticados */}
         {!isAuthenticated && (
           <div className="alert-login">
             ⚠️ Para disfrutar de todas las funcionalidades, por favor <a href="/login" style={{ color: 'blue', textDecoration: 'underline' }}>inicia sesión</a>.
           </div>
         )}
 
-        {/* Carrusel de recetas Populares */}
+        {/*Recetas populares*/}
         <section>
           <h2>Populares</h2>
           {loading ? (
@@ -155,7 +163,7 @@ function Home() {
           )}
         </section>
 
-        {/* Sección de recetas recientes */}
+        {/*Recetas recientes*/}
         <section className="mt-5">
           <h2>Recién cocinadas</h2>
           {loading ? (
@@ -181,31 +189,29 @@ function Home() {
           )}
         </section>
 
-        {/* Sección de categorías de recetas */}
-        <section class="mt-5">
+        {/*Categorías(estáticas) */}
+        <section className="mt-5">
           <h2>Categorías de Recetas</h2>
-          <div class="categorias">
-
-            <div class="categoria">
+          <div className="categorias">
+            <div className="categoria">
               <img src="img/postre.jpg" alt="Postres" />
               <h3>Postres</h3>
             </div>
 
-            <div class="categoria">
+            <div className="categoria">
               <img src="img/principales.jpg" alt="Platos Principales" />
               <h3>Platos Principales</h3>
             </div>
 
-            <div class="categoria">
+            <div className="categoria">
               <img src="img/ensaladas.jpg" alt="Ensaladas" />
               <h3>Ensaladas</h3>
             </div>
 
-            <div class="categoria">
+            <div className="categoria">
               <img src="img/bebidas.jpg" alt="Bebidas" />
               <h3>Bebidas</h3>
             </div>
-
           </div>
         </section>
       </main>
@@ -216,8 +222,6 @@ function Home() {
         <p>&copy; 2025 RecetApp - Todos los derechos reservados</p>
       </footer>
     </>
-
-
   );
 }
 

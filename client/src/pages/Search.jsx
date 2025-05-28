@@ -1,6 +1,7 @@
 // client/src/pages/Search.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 import './style/Search.css';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetail from '../components/RecipeDetail';
@@ -17,6 +18,7 @@ const Buscar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const location = useLocation();
+  const navigate = useNavigate();
   const [selectedRecipe, setSelectedRecipe] = useState(
     location.state?.preselectedRecipe || null
   );
@@ -25,6 +27,17 @@ const Buscar = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [ingredientSearch, setIngredientSearch] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const userFromStorage = localStorage.getItem('user');
+  const userData = userFromStorage ? JSON.parse(userFromStorage) : null;
+  
+
+  //***********************//
+  //Verificar autenticación//
+  //***********************//
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
 
   //***************//
   //Botón de scroll//
@@ -100,12 +113,13 @@ const Buscar = () => {
     fetchRecipes();
   }, [location.state, ingredientSearch]);
 
+  //****************//
+  //Mostrar detalles//
+  //****************//
   const handleViewRecipe = async (recipe) => {
     setIsDetailLoading(true);
     setSelectedRecipe(recipe);
-
     await new Promise(resolve => setTimeout(resolve, 300));
-
     requestAnimationFrame(() => {
       const detailSection = document.getElementById('recipe-detail-section');
       if (detailSection) {
@@ -118,22 +132,17 @@ const Buscar = () => {
     setIsDetailLoading(false);
   };
 
-
+  //*****************//
+  //Filtro de recetas//
+  //*****************//
   const { filteredRecipes, recipesByCategory } = useMemo(() => {
     const filtered = recipes.filter(recipe => {
       const matchesCategory = selectedCategory === 'todas' ||
         recipe.category === selectedCategory;
       const matchesSearch = recipe.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Búsqueda por ingrediente
-      const matchesIngredient = ingredientSearch.trim() === '' ||
-        recipe.ingredients?.some(ing =>
-          (ing.name || ing.ingredient?.name)?.toLowerCase().includes(ingredientSearch.toLowerCase())
-        );
-
       return matchesCategory && matchesSearch;
     });
-
     const byCategory = {
       postres: recipes.filter(r => r.category === 'postres'),
       principales: recipes.filter(r => r.category === 'principales'),
@@ -141,10 +150,12 @@ const Buscar = () => {
       ensaladas: recipes.filter(r => r.category === 'ensaladas'),
       todas: recipes
     };
-
     return { filteredRecipes: filtered, recipesByCategory: byCategory };
   }, [recipes, selectedCategory, searchTerm, ingredientSearch]);
 
+  //********************//
+  //Filtro de categorías//
+  //********************//
   const handleCategoryChange = (categoria) => {
     setSelectedCategory(categoria);
     setActiveIndex(0);
@@ -152,11 +163,17 @@ const Buscar = () => {
     setSearchTerm(''); // reset search when changing category
   };
 
+  //*******************//
+  //Termino de busqueda//
+  //*******************//
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     setActiveIndex(0);
   };
 
+  //*******************//
+  //Termino de busqueda//
+  //*******************//
   const chunkRecipes = (recipesArray, size = 2) => {
     const chunks = [];
     for (let i = 0; i < recipesArray.length; i += size) {
@@ -224,6 +241,42 @@ const Buscar = () => {
   }
 
   const categories = ['todas', ...new Set(recipes.map(recipe => recipe.category))];
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-info text-center">
+          <h4>Por favor inicia sesión para acceder a tu perfil</h4>
+          <button 
+            onClick={() => navigate('/login')} 
+            className="btn btn-primary mt-3"
+          >
+            Iniciar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning text-center">
+          <h4>No se pudieron cargar los datos del usuario</h4>
+          <button 
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.reload();
+            }}
+            className="btn btn-warning mt-3"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

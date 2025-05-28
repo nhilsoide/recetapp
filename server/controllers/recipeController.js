@@ -1,5 +1,3 @@
-// controllers/recipeController.js
-
 const Recipe = require('../models/Recipe');
 const RecipeIngredient = require('../models/RecipeIngredient');
 const Ingredient = require('../models/Ingredient');
@@ -29,7 +27,7 @@ exports.createRecipe = async (req, res) => {
     // 1. Procesar imagen (si existe)
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
-    // 2. Verificar campos requeridos
+    // 2. Verificar campos requeridos (VALIDACIÓN)
     const requiredFields = ['name', 'description', 'instructions', 'ingredients', 'difficulty'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
     if (missingFields.length > 0) {
@@ -40,7 +38,7 @@ exports.createRecipe = async (req, res) => {
       });
     }
 
-    // 3. Parsear instrucciones e ingredientes
+    // 3. Parsear instrucciones e ingredientes (VALIDACIÓN)
     let parsedInstructions;
     let parsedIngredients;
     try {
@@ -91,7 +89,7 @@ exports.createRecipe = async (req, res) => {
       await RecipeIngredient.insertMany(recipeIngredients);
     }
 
-    // 7. Responder con la receta poblada
+    // 7. Responder con la receta 
     const fullRecipe = await Recipe.findById(recipe._id)
       .populate({
         path: 'ingredients',

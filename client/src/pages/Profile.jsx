@@ -18,12 +18,10 @@ const Perfil = () => {
   const [showEditIngredientDropdown, setShowEditIngredientDropdown] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
   const [editedUser, setEditedUser] = useState({
     nombre: userData?.nombre || '',
     email: userData?.email || '',
   });
-
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [newRecipe, setNewRecipe] = useState({
     name: '',
@@ -35,7 +33,6 @@ const Perfil = () => {
     ingredients: [],
     image: null,
   });
-
   const [showIngredientModal, setShowIngredientModal] = useState(false);
   const [ingredientInput, setIngredientInput] = useState({
     ingredient: '',
@@ -54,7 +51,15 @@ const Perfil = () => {
     notes: '',
   });
 
-  // Función para ver receta
+  //Autenticación
+  ///////////////
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  //Ver receta
+  ////////////
   const handleViewRecipe = (recipe) => {
     navigate('/buscar', {
       state: {
@@ -64,7 +69,8 @@ const Perfil = () => {
     });
   };
 
-  // Cargar favoritos
+  //Cargar favoritos
+  //////////////////
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
@@ -76,7 +82,6 @@ const Perfil = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (!response.ok) throw new Error('Error al cargar favoritos');
         const data = await response.json();
         setFavoriteRecipes(data);
@@ -84,10 +89,11 @@ const Perfil = () => {
         console.error('Error fetching favorites:', err);
       }
     };
-
     fetchFavorites();
   }, []);
 
+  //Actualizar perfil
+  ///////////////////
   const handleUpdateProfile = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -99,19 +105,15 @@ const Perfil = () => {
         },
         body: JSON.stringify(editedUser),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.msg || 'Error al actualizar el perfil');
       }
-
       // Actualizar token y datos de usuario en localStorage
       if (data.token) {
         localStorage.setItem('token', data.token);
       }
       localStorage.setItem('user', JSON.stringify(data.user));
-
       alert(data.msg || 'Perfil actualizado correctamente');
       setEditMode(false);
       window.location.reload();
@@ -121,7 +123,8 @@ const Perfil = () => {
     }
   };
 
-  // Cargar ingredientes disponibles
+  //Cargar ingredientes disponibles//
+  ///////////////////////////////////
   useEffect(() => {
 
     const token = localStorage.getItem('token');
@@ -156,14 +159,14 @@ const Perfil = () => {
     fetchIngredients();
   }, []);
 
-  // Cerrar dropdowns al hacer clic fuera
+  //Cerrar al hacer clic afuera//
+  //////////////////////////////
   useEffect(() => {
-    const handleClickOutside = (event) => {
+      const handleClickOutside = (event) => {
       const newDropdown = document.querySelector('.ingredient-dropdown-new');
       const newToggle = document.querySelector('.ingredient-dropdown-toggle-new');
       const editDropdown = document.querySelector('.ingredient-dropdown-edit');
       const editToggle = document.querySelector('.ingredient-dropdown-toggle-edit');
-
       if (
         showNewIngredientDropdown &&
         !newDropdown?.contains(event.target) &&
@@ -179,14 +182,14 @@ const Perfil = () => {
         setShowEditIngredientDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showNewIngredientDropdown, showEditIngredientDropdown]);
 
-  // Cargar recetas del usuario
+  //Recetas por usuario//
+  ///////////////////////
   useEffect(() => {
     const fetchUserRecipes = async () => {
       try {
@@ -198,7 +201,6 @@ const Perfil = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
         if (!response.ok) throw new Error('Error al cargar tus recetas');
         const data = await response.json();
         setUserRecipes(data);
@@ -206,10 +208,11 @@ const Perfil = () => {
         console.error('Error fetching user recipes:', err);
       }
     };
-
     fetchUserRecipes();
   }, []);
 
+  //Nuevo ingrediente en nueva receta//
+  /////////////////////////////////////
   const handleIngredientAdd = () => {
     if (!ingredientInput.ingredient || !ingredientInput.quantity) {
       alert('Selecciona un ingrediente y especifica la cantidad');
@@ -241,20 +244,8 @@ const Perfil = () => {
     });
   };
 
-  const getImageSrc = (image) => {
-    if (!image) return '';
-    if (image instanceof Blob || image instanceof File) {
-      return URL.createObjectURL(image);
-    }
-    if (typeof image === 'string' && image.startsWith('http')) {
-      return image;
-    }
-    if (typeof image === 'string') {
-      return `http://localhost:5000${image}`;
-    }
-    return '';
-  };
-
+  //Subir imagen en nueva receta//
+  ////////////////////////////////
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -262,6 +253,7 @@ const Perfil = () => {
     }
   };
 
+  
   const handleCreateIngredient = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -383,16 +375,16 @@ const Perfil = () => {
       difficulty: recipe.difficulty || '',
       ingredients: recipe.ingredients
         ? recipe.ingredients.map((ing) => ({
-            ingredient: ing.ingredient?._id || ing.ingredient,
-            name:
-              ing.ingredient?.name ||
-              availableIngredients.find((ai) => ai._id === ing.ingredient)?.name,
-            quantity: ing.quantity,
-            unit:
-              ing.ingredient?.unit ||
-              availableIngredients.find((ai) => ai._id === ing.ingredient)?.unit,
-            notes: ing.notes || '',
-          }))
+          ingredient: ing.ingredient?._id || ing.ingredient,
+          name:
+            ing.ingredient?.name ||
+            availableIngredients.find((ai) => ai._id === ing.ingredient)?.name,
+          quantity: ing.quantity,
+          unit:
+            ing.ingredient?.unit ||
+            availableIngredients.find((ai) => ai._id === ing.ingredient)?.unit,
+          notes: ing.notes || '',
+        }))
         : [],
       imageUrl: recipe.imageUrl || '',
       newImage: null,
@@ -518,6 +510,43 @@ const Perfil = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-info text-center">
+          <h4>Por favor inicia sesión para acceder a tu perfil</h4>
+          <button
+            onClick={() => navigate('/login')}
+            className="btn btn-primary mt-3"
+          >
+            Iniciar Sesión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning text-center">
+          <h4>No se pudieron cargar los datos del usuario</h4>
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.reload();
+            }}
+            className="btn btn-warning mt-3"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -670,7 +699,7 @@ const Perfil = () => {
                         <img
                           src={
                             'http://localhost:5000' +
-                              recipe.imageUrl || '/img/default-recipe.jpg'
+                            recipe.imageUrl || '/img/default-recipe.jpg'
                           }
                           className="card-img-top"
                           alt={recipe.name}
@@ -907,8 +936,8 @@ const Perfil = () => {
                           <span>
                             {ingredientInput.ingredient
                               ? availableIngredients.find(
-                                  (ing) => ing._id === ingredientInput.ingredient
-                                )?.name || 'Seleccionar ingrediente'
+                                (ing) => ing._id === ingredientInput.ingredient
+                              )?.name || 'Seleccionar ingrediente'
                               : 'Seleccionar ingrediente'}
                           </span>
                           <span className="dropdown-arrow">▼</span>
@@ -938,11 +967,10 @@ const Perfil = () => {
                                   {ingredients.map((ing) => (
                                     <div
                                       key={ing._id}
-                                      className={`dropdown-item ${
-                                        ingredientInput.ingredient === ing._id
-                                          ? 'selected'
-                                          : ''
-                                      }`}
+                                      className={`dropdown-item ${ingredientInput.ingredient === ing._id
+                                        ? 'selected'
+                                        : ''
+                                        }`}
                                       onClick={() => {
                                         setIngredientInput({
                                           ...ingredientInput,
@@ -1161,11 +1189,11 @@ const Perfil = () => {
                       <img
                         src={
                           editingRecipe.newImage instanceof Blob ||
-                          editingRecipe.newImage instanceof File
+                            editingRecipe.newImage instanceof File
                             ? URL.createObjectURL(editingRecipe.newImage)
                             : editingRecipe.imageUrl.includes('http')
-                            ? editingRecipe.imageUrl
-                            : `http://localhost:5000${editingRecipe.imageUrl}`
+                              ? editingRecipe.imageUrl
+                              : `http://localhost:5000${editingRecipe.imageUrl}`
                         }
                         alt="Vista previa"
                         className="img-thumbnail"
@@ -1331,8 +1359,8 @@ const Perfil = () => {
                           <span>
                             {editIngredientInput.ingredient
                               ? availableIngredients.find(
-                                  (ing) => ing._id === editIngredientInput.ingredient
-                                )?.name || 'Seleccionar ingrediente'
+                                (ing) => ing._id === editIngredientInput.ingredient
+                              )?.name || 'Seleccionar ingrediente'
                               : 'Seleccionar ingrediente'}
                           </span>
                           <span className="dropdown-arrow">▼</span>
@@ -1347,7 +1375,6 @@ const Perfil = () => {
                                 setShowEditIngredientDropdown(false);
                               }}
                             >
-                              <span>➕ Crear nuevo ingrediente</span>
                             </div>
                             {Object.entries(groupedIngredients).map(
                               ([category, ingredients]) => (
@@ -1362,11 +1389,10 @@ const Perfil = () => {
                                   {ingredients.map((ing) => (
                                     <div
                                       key={ing._id}
-                                      className={`dropdown-item ${
-                                        editIngredientInput.ingredient === ing._id
-                                          ? 'selected'
-                                          : ''
-                                      }`}
+                                      className={`dropdown-item ${editIngredientInput.ingredient === ing._id
+                                        ? 'selected'
+                                        : ''
+                                        }`}
                                       onClick={() => {
                                         setEditIngredientInput((prev) => ({
                                           ...prev,
