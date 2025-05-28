@@ -8,7 +8,3 @@ const app = express();
 app.use(cors());  // Para permitir peticiones desde React
 app.use(bodyParser.json());
 
-// Ruta de ejemplo
-app.get('/api/mensaje', (req, res) => {
-  res.json({ mensaje: 'Hola desde el backend!' });
-});

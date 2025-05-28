@@ -10,13 +10,6 @@ import Admin from './pages/Admin';
 
 function App() {
   
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/mensaje')
-      .then((res) => {        
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
   return (
     <div>
       <Router>

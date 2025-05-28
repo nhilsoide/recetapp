@@ -6,6 +6,7 @@ const upload = require('../config/upload');
 
 // Recetas
 router.get('/', recipeController.getRecipes);
+router.get('/all', recipeController.getAllRecipes);
 
 // Test
 router.get('/mensaje', (req, res) => {
@@ -26,5 +27,8 @@ router.put('/:id', auth, upload.single('image'), recipeController.updateRecipe);
 
 //Obtener recetas por ingredientes
 router.get('/search/ingredient', recipeController.searchByIngredient);
+
+// Cambiar estado de receta (solo admin yo jijiji)
+router.patch('/:id/status', auth, recipeController.toggleRecipeStatus);
 
 module.exports = router;

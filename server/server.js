@@ -5,6 +5,7 @@ const cors = require('cors');
 const path = require('path');
 const recipeRoutes = require('./routes/recipeRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
+const userRoutes = require('./routes/userRoutes');
 // Inicializar app
 const app = express();
 
@@ -37,7 +38,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Rutas de recetas
 app.use('/api/recipes', recipeRoutes);
-
+app.use('/api/users', userRoutes);
 
 app.use('/api/favorites', favoriteRoutes); 
 

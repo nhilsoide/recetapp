@@ -118,17 +118,19 @@ exports.createRecipe = async (req, res) => {
 // =======================================
 // Obtener recetas activas (con filtros, búsqueda, paginación, etc.)
 // =======================================
-exports.getActiveRecipes = async (req, res) => {
+exports.getAllRecipes = async (req, res) => {
   try {
-    const { category, difficulty, time, search, limit } = req.query;
-    const query = { isActive: true };
-
-    // Filtros
+    const { category, difficulty, time, search } = req.query;
+    const limit = parseInt(req.query.limit) || 10;
+    const sort = req.query.sort || '-createdAt';
+    const query = {};
+    
+    // Filtros opcionales
     if (category) query.category = category;
     if (difficulty) query.difficulty = difficulty;
     if (time) query.preparationTime = { $lte: parseInt(time) };
 
-    // Búsqueda por texto en nombre/description
+    // Búsqueda por texto
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -136,22 +138,23 @@ exports.getActiveRecipes = async (req, res) => {
       ];
     }
 
-    let queryBuilder = Recipe.find(query)
-      .populate('author', 'nombre')
+    const recipes = await Recipe.find(query)
+      .sort(sort)
+      .limit(limit)
       .populate({
         path: 'ingredients',
-        populate: { path: 'ingredient' }
+        populate: {
+          path: 'ingredient',
+          model: 'Ingredient',
+          select: 'name unit'
+        }
       })
+      .populate('author', 'nombre')
       .sort({ createdAt: -1 });
 
-    if (limit) {
-      queryBuilder = queryBuilder.limit(parseInt(limit));
-    }
-
-    const recipes = await queryBuilder.exec();
     res.json(recipes);
   } catch (error) {
-    console.error("Error en getActiveRecipes:", error);
+    console.error("Error en getRecipes:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -347,27 +350,44 @@ exports.updateRecipe = async (req, res) => {
 // Cambiar estado de la receta (activar/desactivar)
 // =======================================
 exports.toggleRecipeStatus = async (req, res) => {
-  try {
-    const recipe = await Recipe.findOne({
-      _id: req.params.id,
-      author: req.user.id
-    });
+    try {
+        // Verificar si el usuario es admin
+        if (!req.user.isAdmin) {
+            return res.status(403).json({ 
+                success: false,
+                error: 'No tienes permisos para esta acción' 
+            });
+        }
 
-    if (!recipe) {
-      return res.status(404).json({ error: 'Receta no encontrada' });
+        const recipe = await Recipe.findById(req.params.id);
+
+        if (!recipe) {
+            return res.status(404).json({ 
+                success: false,
+                error: 'Receta no encontrada' 
+            });
+        }
+
+        // Opcional: puedes recibir el estado deseado desde el frontend
+        const desiredStatus = typeof req.body.currentStatus === 'boolean' 
+            ? !req.body.currentStatus 
+            : !recipe.isActive;
+
+        recipe.isActive = desiredStatus;
+        await recipe.save();
+
+        res.json({
+            success: true,
+            message: `Receta ${recipe.isActive ? 'activada' : 'desactivada'}`,
+            isActive: recipe.isActive
+        });
+    } catch (error) {
+        console.error("Error en toggleRecipeStatus:", error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
-
-    recipe.isActive = !recipe.isActive;
-    await recipe.save();
-
-    res.json({
-      message: `Receta ${recipe.isActive ? 'activada' : 'desactivada'}`,
-      isActive: recipe.isActive
-    });
-  } catch (error) {
-    console.error("Error en toggleRecipeStatus:", error);
-    res.status(500).json({ error: error.message });
-  }
 };
 
 // =======================================

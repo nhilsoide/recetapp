@@ -819,3 +819,10 @@ main {
 .modal-content .ingredient-info {
   flex-grow: 1;
 }
+
+.modal-overlay {
+  z-index: 1000; /* Para el modal de editar receta */
+}
+.modal-ingrediente {
+  z-index: 1001; /* Para que aparezca encima */
+}
